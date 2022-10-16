@@ -1,11 +1,7 @@
 class Cmdline {
-  constructor() {
-    this.setFocus(0);
-  }
-
-  setFocus(index) {
-    this.history = new CmdlineHistory(document.getElementsByClassName('cmdline__history')[index]);
-    this.input = new CmdlineInput(document.getElementsByClassName('cmdline__input')[index]);
+  constructor(cmdline) {
+    this.history = new CmdlineHistory(cmdline.getElementsByClassName('cmdline__history')[0]);
+    this.input = new CmdlineInput(cmdline.getElementsByClassName('cmdline__input')[0]);
   }
 }
 
@@ -22,6 +18,16 @@ class CmdlineHistory {
   write(text) {
     this.history.append(text);
     this.history.appendChild(document.createElement('br'));
+  }
+
+  writePre(text) {
+    let pre = document.createElement('pre');
+    pre.innerHTML = text;
+    this.history.appendChild(pre);
+  }
+
+  clear() {
+    this.history.innerHTML = '';
   }
 }
 
@@ -41,6 +47,7 @@ class CmdlineInput {
     }
   }
 
+  // set caret at the end of input
   focus() {
     this.command.focus();
     let sel = window.getSelection();
@@ -62,16 +69,16 @@ class CmdlineInput {
 }
 
 class Shell {
-  constructor() {
-    this.cmdline = new Cmdline();
+  constructor(cmdline) {
+    this.cmdline = cmdline;
 
     // name: { help, execute }
     this.cmd = {
       'help': {
-        'help': `A real help`,
+        'help': `Help help.`,
         'execute': (args)=>{
           if (args[0] == '-h') {
-            let help = this.cmd['$SHELL'].help.split('\n');
+            let help = this.cmd['help'].help.split('\n');
 
             for (let i in help)
               this.cmdline.history.write(help[i]);
@@ -119,15 +126,18 @@ class Shell {
     this.dirTree[this.dirRoot] = {
       'type': 'dir',
       'content': {
-        'posts': {
+        'blog': {
           'type': 'dir',
           'content': {
-
+            'blog_link': {
+              'type': 'link',
+              'content': 'https://insorker.github.io/'
+            }
           }
         },
-        'readme.txt': {
+        'readme': {
           'type': 'file',
-          'content': 'zxd'
+          'content': 'This is an artificial shell made by javascript. Type "help" for more infomation.'
         }
       },
     };
@@ -142,7 +152,6 @@ class Shell {
       'NotADirectory': (file) => `not a directory: ${file}`,
       'IsADirectory': (dir) => `${dir}: Is a directory`,
       'InvalidOption': (option) => `invalid option -- '${option}'`,
-      'IsLackOfArguments': (cmd) => `${cmd}: is lack of arguments`
     };
   }
 
@@ -183,7 +192,9 @@ class Shell {
             return;
 
           for (let key in dirStackBak[dirStackBak.length - 1].tree.content) {
-            key = key + '/';
+            if (dirStackBak[dirStackBak.length - 1].tree.content[key].type == 'dir') {
+              key = key + '/';
+            }
             if (key.length < pathToComplete.length)
               continue;
             
@@ -215,8 +226,8 @@ class Shell {
 }
 
 class Xdsh extends Shell {
-  constructor() {
-    super();
+  constructor(cmdline) {
+    super(cmdline);
 
     this.shell = 'xdsh';
     this.account = 'usr';
@@ -231,6 +242,21 @@ class Xdsh extends Shell {
       'help': `ls
       List directory contents.More information: https://www.gnu.org/software/coreutils/ls.`,
       'execute': (args)=>{
+        function getlsitem(type, text, className) {
+          let lsitem = document.createElement(type);
+          lsitem.innerText = text;
+          lsitem.className = className;
+          return lsitem;
+        }
+
+        if (args[0] == '-h') {
+          let help = this.cmd['ls'].help.split('\n');
+
+          for (let i in help)
+            this.cmdline.history.write(help[i]);
+          return true;
+        }
+
         let ls = document.createElement('div');
         ls.className = 'xdsh-ls';
 
@@ -253,19 +279,27 @@ class Xdsh extends Shell {
         if (file) {
           if (file.type == 'dir') {
             for (let key in file.content) {
-              let lsitem = document.createElement('div');
-              lsitem.innerText = key;
+              let lsitem;
 
               if (file.content[key].type == 'dir')
-                lsitem.className = 'xdsh-ls__dir';
+                lsitem = getlsitem('div', key, 'xdsh-ls__dir');
               else if (file.content[key].type == 'file')
-                lsitem.className = 'xdsh-ls__file';
+                lsitem = getlsitem('div', key, 'xdsh-ls__file');
+              else if (file.content[key].type == 'link') {
+                lsitem = getlsitem('a', key, 'xdsh-ls__link');
+                lsitem.setAttribute('href', file.content[key].content);
+                lsitem.setAttribute('target', '_blank');
+              }
 
               ls.appendChild(lsitem);
             }
           }
-          else if (file.type == 'file') {
-            ls.innerText = file.name;
+          else if (file.type == 'file')
+            lsitem = getlsitem('div', key, 'xdsh-ls__file');
+          else if (file.type == 'link') {
+            lsitem = getlsitem('a', key, 'xdsh-ls__link');
+            lsitem.setAttribute('href', file.content[key].content);
+            lsitem.setAttribute('target', '_blank');
           }
 
           this.cmdline.history.append(ls);
@@ -287,11 +321,19 @@ class Xdsh extends Shell {
           return true;
         }
         
+        if (args[0] == '-h') {
+          let help = this.cmd['cd'].help.split('\n');
+
+          for (let i in help)
+            this.cmdline.history.write(help[i]);
+          return true;
+        }
+
         let valid, dirCurrentBak, dirStackBak, errorMsg;
         [ valid, dirCurrentBak, dirStackBak, errorMsg ] = this.pathParser(args[0]);
 
         if (!valid) {
-          this.error('cd' + errorMsg);
+          this.error('cd: ' + errorMsg);
           return false;
         }
 
@@ -305,6 +347,14 @@ class Xdsh extends Shell {
       'help': `pwd
       Print name of current/working directory.More information: https://www.gnu.org/software/coreutils/pwd.`,
       'execute': (args)=>{
+        if (args[0] == '-h') {
+          let help = this.cmd['pwd'].help.split('\n');
+
+          for (let i in help)
+            this.cmdline.history.write(help[i]);
+          return true;
+        }
+
         let path = '';
         
         for (let i = 0; i < this.dirStack.length; i++) {
@@ -321,8 +371,16 @@ class Xdsh extends Shell {
       Print and concatenate files.More information: https://www.gnu.org/software/coreutils/cat.`,
       'execute': (args)=>{
         if (!args.length) {
-          this.error('cat: ' + this.errorMsg['IsLackOfArguments']('cat'));
+          this.error('cat: ' + this.errorMsg['InvalidOption'](''));
           return false;
+        }
+
+        if (args[0] == '-h') {
+          let help = this.cmd['cat'].help.split('\n');
+
+          for (let i in help)
+            this.cmdline.history.write(help[i]);
+          return true;
         }
 
         let valid, dirCurrentBak, dirStackBak, errorMsg;
@@ -343,8 +401,55 @@ class Xdsh extends Shell {
           this.cmdline.history.write(file.content);
           return true;
         }
+        else if (file.type == 'link') {
+          this.cmdline.history.write(dirCurrentBak);
+          return true;
+        }
 
         return false;
+      }
+    }
+    this.cmd['clear'] = {
+      'help': `clear
+      Clears the screen of the terminal.More information: https://manned.org/clear.`,
+      'execute': (args)=>{
+        if (args[0] == '-h') {
+          let help = this.cmd['clear'].help.split('\n');
+
+          for (let i in help)
+            this.cmdline.history.write(help[i]);
+          return true;
+        }
+
+        this.cmdline.history.clear();
+        return true;
+      }
+    }
+    this.cmd['image'] = {
+      'help': `image
+      Create a xdsh image from markdown file.`,
+      'execute': (args) => {
+        if (args[0] == '-h') {
+          let help = this.cmd['image'].help.split('\n');
+
+          for (let i in help)
+            this.cmdline.history.write(help[i]);
+          return true;
+        }
+
+        const fileSelector = document.createElement('input');
+        fileSelector.setAttribute('type', 'file');
+        fileSelector.setAttribute('accept', '.md');
+        fileSelector.addEventListener('change', (event) => {
+          let reader = new FileReader();
+          reader.readAsText(fileSelector.files[0], 'utf-8');
+          reader.onload = () => {
+            this.cmdline.history.writePre(reader.result);
+          }
+        });
+        fileSelector.click();
+        
+        return true;
       }
     }
   }
@@ -378,6 +483,12 @@ class Xdsh extends Shell {
       }
     });
 
+    this.registerHotkey('l', (event)=>{
+      event.preventDefault();
+
+      this.cmdline.history.clear();
+    }, true);
+
     document.addEventListener('keydown', (event) => {
       const keyName = event.key;
 
@@ -392,13 +503,18 @@ class Xdsh extends Shell {
     }, false);
   }
 
-  registerHotkey(name, func) {
-    this.hotkey[name] = func;
+  registerHotkey(name, func, ctrl=false, alt=false) {
+    if (ctrl)
+      this.hotkey['ctrl+'][name] = func;
+    else if (alt)
+      this.hotkey['alt+'][name] = func;
+    else
+      this.hotkey[name] = func;
   }
 
   // check the validity of str, and provide the path tree
   // return [ valid, dirCurrent, dirStack, errorMsg ]
-  pathParser(str, endWithFile=false) {
+  pathParser(str, endNotDirectory=false) {
     let path = str.split('/');
     let file = this.dirStack[this.dirStack.length - 1].tree;
     let dirCurrentBak = this.dirCurrent;
@@ -424,7 +540,7 @@ class Xdsh extends Shell {
         for (let key in file.content) {
           if (key == path[0]) {
             if (file.content[key].type != 'dir') {
-              if (endWithFile && path.length == 1) {
+              if (endNotDirectory && path.length == 1) {
                 dirStackBak.push({
                   'tree': file.content[key],
                   'name': key,
@@ -440,6 +556,7 @@ class Xdsh extends Shell {
               'name': key,
             });
             dirCurrentBak = key;
+            file = dirStackBak[dirStackBak.length - 1].tree;
             isfound = true;
             break;
           }

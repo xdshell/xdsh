@@ -23,8 +23,10 @@
 
   <script src="./js/xdsh.js"></script>
   <script>
-    let xdsh = new Xdsh();
+    let cmdline = new Cmdline(document.getElementsByClassName('cmdline')[0]);
+    let xdsh = new Xdsh(cmdline);
     xdsh.setup();
+    // alert(window.location.pathname);
   </script>
 </body>
 </html>
