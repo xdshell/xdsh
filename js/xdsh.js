@@ -127,19 +127,6 @@ class Shell {
     this.dirTree[this.dirRoot] = {
       'type': 'dir',
       'content': {
-        'blog': {
-          'type': 'dir',
-          'content': {
-            'blog_link': {
-              'type': 'link',
-              'content': 'https://insorker.github.io/'
-            }
-          }
-        },
-        'readme': {
-          'type': 'file',
-          'content': 'This is a fake shell made by javascript. Type "help" for more infomation.'
-        }
       },
     };
     this.dirCurrent = this.dirRoot;

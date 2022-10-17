@@ -6,8 +6,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>xdsh</title>
   <link href="https://fonts.googleapis.com/css?family=Cutive+Mono" rel="stylesheet">
-  <link rel="stylesheet" href="./css/xdsh.css"> 
-  <!-- <link rel="stylesheet" href="/css/xdsh.css"> -->
+  <!-- <link rel="stylesheet" href="./css/xdsh.css">  -->
+  <link rel="stylesheet" href="/css/xdsh.css">
 </head>
 <body>
   <div class="content">
@@ -33,17 +33,17 @@
     </div>
   </div>
 
-  <script src="./js/xdsh.js"></script>
-  <!-- <script src="/js/xdsh.js"></script> -->
+  <!-- <script src="./js/xdsh.js"></script> -->
+  <script src="/js/xdsh.js"></script>
   <script>
     let cmdline = new Cmdline(document.getElementsByClassName('cmdline')[0]);
     let xdsh = new Xdsh(cmdline);
     xdsh.setup();
 
-    // let img = readFile(window.location.href + 'image/image.json');
-    let img = readFile('https://insorker.github.io/xdsh/image/image.json');
-    if (img) {
-      let img = JSON.parse(img);
+    // let file = readFile('https://insorker.github.io/xdsh/image/image.json');
+    let file = readFile('/image/image.json');
+    if (file) {
+      let img = JSON.parse(file);
       xdsh.loadImage(img);
     }
     else alert('Loading image failed');
