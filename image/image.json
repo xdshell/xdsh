@@ -4,15 +4,28 @@
     "blog": {
       "type": "dir",
       "content": {
-        "blog_link": {
+        "insorker.github.io": {
           "type": "link",
           "content": "https://insorker.github.io/"
+        },
+        "HowToContactMe": {
+          "type": "file",
+          "content": "- QQ: 2677331029\n- Email: 2677331029@qq.com\n - Bilibili: https://space.bilibili.com/434618849"
         }
       }
     },
-    "readme": {
+    "game": {
+      "type": "dir",
+      "content": {
+        "falling_magic": {
+          "type": "link",
+          "content": "https://insorker.github.io/FallingMagic/"
+        }
+      }
+    },
+    "README": {
       "type": "file",
-      "content": "This is an artificial shell made by javascript. Type 'help' for more infomation."
+      "content": "This is a fake shell made by javascript. Type 'help' for more infomation."
     }
   }
 }

@@ -15,15 +15,15 @@ class CmdlineHistory {
     // this.history.appendChild(document.createElement('br'));
   }
 
-  write(text) {
+  writeWithoutBreak(text) {
     this.history.append(text);
     this.history.appendChild(document.createElement('br'));
   }
 
-  writePre(text) {
-    let pre = document.createElement('pre');
-    pre.innerHTML = text;
-    this.history.appendChild(pre);
+  write(text) {
+    let lines = text.split('\n');
+    for (let line of lines)
+      this.writeWithoutBreak(line);
   }
 
   clear() {
@@ -78,10 +78,7 @@ class Shell {
         'help': `Help help.`,
         'execute': (args)=>{
           if (args[0] == '-h') {
-            let help = this.cmd['help'].help.split('\n');
-
-            for (let i in help)
-              this.cmdline.history.write(help[i]);
+            this.cmdline.history.write(this.cmd['help'].help);
             return true;
           }
 
@@ -89,7 +86,7 @@ class Shell {
           let commands = '';
           for (let key in this.cmd)
             commands += key + ' '
-          this.cmdline.history.writePre(commands);
+          this.cmdline.history.write(commands);
           this.cmdline.history.write('Type "[command] -h" for more infomation.');
           return true;
         }
@@ -101,10 +98,7 @@ class Shell {
           -v show shell version number, then exit`,
         'execute': (args)=>{
           if (args[0] == '-h') {
-            let help = this.cmd['$SHELL'].help.split('\n');
-
-            for (let i in help)
-              this.cmdline.history.write(help[i]);
+            this.cmdline.history.write(this.cmd['$SHELL'].help);
             return true;
           }
           else if (args[0] == '-v') {
@@ -239,10 +233,7 @@ class Xdsh extends Shell {
         }
 
         if (args[0] == '-h') {
-          let help = this.cmd['ls'].help.split('\n');
-
-          for (let i in help)
-            this.cmdline.history.write(help[i]);
+          this.cmdline.history.write(this.cmd['ls'].help);
           return true;
         }
 
@@ -311,10 +302,7 @@ class Xdsh extends Shell {
         }
         
         if (args[0] == '-h') {
-          let help = this.cmd['cd'].help.split('\n');
-
-          for (let i in help)
-            this.cmdline.history.write(help[i]);
+          this.cmdline.history.write(this.cmd['cd'].help);
           return true;
         }
 
@@ -337,10 +325,7 @@ class Xdsh extends Shell {
       Print name of current/working directory.More information: https://www.gnu.org/software/coreutils/pwd.`,
       'execute': (args)=>{
         if (args[0] == '-h') {
-          let help = this.cmd['pwd'].help.split('\n');
-
-          for (let i in help)
-            this.cmdline.history.write(help[i]);
+          this.cmdline.history.write(this.cmd['pwd'].help);
           return true;
         }
 
@@ -365,10 +350,7 @@ class Xdsh extends Shell {
         }
 
         if (args[0] == '-h') {
-          let help = this.cmd['cat'].help.split('\n');
-
-          for (let i in help)
-            this.cmdline.history.write(help[i]);
+          this.cmdline.history.write(this.cmd['cat'].help);
           return true;
         }
 
@@ -403,10 +385,7 @@ class Xdsh extends Shell {
       Clears the screen of the terminal.More information: https://manned.org/clear.`,
       'execute': (args)=>{
         if (args[0] == '-h') {
-          let help = this.cmd['clear'].help.split('\n');
-
-          for (let i in help)
-            this.cmdline.history.write(help[i]);
+          this.cmdline.history.write(this.cmd['clear'].help);
           return true;
         }
 
@@ -419,10 +398,7 @@ class Xdsh extends Shell {
       Create a xdsh image from markdown file.`,
       'execute': (args) => {
         if (args[0] == '-h') {
-          let help = this.cmd['image'].help.split('\n');
-
-          for (let i in help)
-            this.cmdline.history.write(help[i]);
+          this.cmdline.history.write(this.cmd['image'].help);
           return true;
         }
 
@@ -433,7 +409,6 @@ class Xdsh extends Shell {
           let reader = new FileReader();
           reader.readAsText(fileSelector.files[0], 'utf-8');
           reader.onload = () => {
-            // this.cmdline.history.writePre(reader.result);
             try {
               let img = JSON.parse(reader.result);
               this.loadImage(img);
