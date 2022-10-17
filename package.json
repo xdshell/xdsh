@@ -1,0 +1,18 @@
+{
+  "name": "xdsh",
+  "version": "0.1.0",
+  "description": "A fake shell made by JavaScript.",
+  "main": "index.js",
+  "repository": "git@github.com:insorker/xdsh.git",
+  "author": "insorker <2677331029@qq.com>",
+  "license": "MIT",
+  "devDependencies": {
+    "vitepress": "^1.0.0-alpha.21",
+    "vue": "^3.2.41"
+  },
+  "scripts": {
+    "docs:dev": "vitepress dev docs",
+    "docs:build": "vitepress build docs",
+    "docs:serve": "vitepress serve docs"
+  }
+}
