@@ -89,7 +89,8 @@ class Shell {
           let commands = '';
           for (let key in this.cmd)
             commands += key + ' '
-          this.cmdline.history.write(commands);
+          this.cmdline.history.writePre(commands);
+          this.cmdline.history.write('Type "[command] -h" for more infomation.');
           return true;
         }
       },
@@ -137,7 +138,7 @@ class Shell {
         },
         'readme': {
           'type': 'file',
-          'content': 'This is an artificial shell made by javascript. Type "help" for more infomation.'
+          'content': 'This is a fake shell made by javascript. Type "help" for more infomation.'
         }
       },
     };
@@ -236,6 +237,7 @@ class Xdsh extends Shell {
 
     this.hotkey = {
       'ctrl+': {},
+      'alt+': {},
     };
 
     this.cmd['ls'] = {
@@ -439,12 +441,20 @@ class Xdsh extends Shell {
 
         const fileSelector = document.createElement('input');
         fileSelector.setAttribute('type', 'file');
-        fileSelector.setAttribute('accept', '.md');
+        fileSelector.setAttribute('accept', '.json');
         fileSelector.addEventListener('change', (event) => {
           let reader = new FileReader();
           reader.readAsText(fileSelector.files[0], 'utf-8');
           reader.onload = () => {
-            this.cmdline.history.writePre(reader.result);
+            // this.cmdline.history.writePre(reader.result);
+            try {
+              let img = JSON.parse(reader.result);
+              this.loadImage(img);
+              this.cmdline.history.write('Load successfully.');
+            } catch(err){
+              this.cmdline.history.write(err);
+              console.error(err)
+            }
           }
         });
         fileSelector.click();
@@ -571,5 +581,10 @@ class Xdsh extends Shell {
     }
 
     return [ true, dirCurrentBak, dirStackBak, ];
+  }
+
+  loadImage(image) {
+    this.dirTree[this.dirRoot] = image;
+    this.cmd['cd'].execute('');
   }
 }

@@ -1,0 +1,18 @@
+{
+  "type": "dir",
+  "content": {
+    "blog": {
+      "type": "dir",
+      "content": {
+        "blog_link": {
+          "type": "link",
+          "content": "https://insorker.github.io/"
+        }
+      }
+    },
+    "readme": {
+      "type": "file",
+      "content": "This is an artificial shell made by javascript. Type 'help' for more infomation."
+    }
+  }
+}

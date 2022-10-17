@@ -36,6 +36,11 @@
   color: #3c9566;
 }
 
+.xdsh-ls__file {
+  margin-right: 24px;
+  flex: 0 0 auto;
+}
+
 .xdsh-ls__link {
   margin-right: 24px;
   color: #a35c8f;
