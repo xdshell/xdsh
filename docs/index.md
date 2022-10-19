@@ -9,9 +9,9 @@ hero:
     - theme: brand
       text: Get Started
       link: /guide/Xdsh简介/什么是Xdsh
-    - theme: brand
+    - theme: alt
       text: View on Demo
-      link: https://github.com/insorker/xdsh/project/
+      link: https://insorker.github.io/xdsh/project/
     - theme: alt
       text: View on GitHub
       link: https://github.com/insorker/xdsh

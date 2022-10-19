@@ -395,7 +395,7 @@ class Xdsh extends Shell {
     }
     this.cmd['image'] = {
       'help': `image
-      Create a xdsh image from markdown file.`,
+      Load a xdsh image from json file.`,
       'execute': (args) => {
         if (args[0] == '-h') {
           this.cmdline.history.write(this.cmd['image'].help);
@@ -421,6 +421,19 @@ class Xdsh extends Shell {
         });
         fileSelector.click();
         
+        return true;
+      }
+    }
+    this.cmd['rm'] = {
+      'help': `rm
+      Remove files or directories.More information: https://www.gnu.org/software/coreutils/rm.`,
+      'execute': (args) => {
+        if (args[0] == '-h') {
+          this.cmdline.history.write(this.cmd['image'].help);
+          return true;
+        }
+
+        this.cmdline.history.write('你在干神魔？');
         return true;
       }
     }
