@@ -1,0 +1,27 @@
+{
+  "type": "dir",
+  "content": {
+    "dir0": {
+      "type": "dir",
+      "content": {
+        "file0": {
+          "type": "file",
+          "content": "This is file0."
+        },
+        "file1": {
+          "type": "file",
+          "content": "This is file1."
+        }
+      }
+    },
+    "dir1": {
+      "type": "dir",
+      "content": {
+        "link0": {
+          "type": "link",
+          "content": "https://github.com"
+        }
+      }
+    }
+  }
+}
