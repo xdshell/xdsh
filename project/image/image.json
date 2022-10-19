@@ -4,13 +4,17 @@
     "blog": {
       "type": "dir",
       "content": {
-        "insorker.github.io": {
+        "github.io": {
           "type": "link",
           "content": "https://insorker.github.io/"
         },
+        "bilibili": {
+          "type": "link",
+          "content": "https://space.bilibili.com/434618849"
+        },
         "HowToContactMe": {
           "type": "file",
-          "content": "- QQ: 2677331029\n- Email: 2677331029@qq.com\n - Bilibili: https://space.bilibili.com/434618849"
+          "content": "我的博客有好看的视频，我的视频有好看的博客。\n- QQ: 2677331029\n- Email: 2677331029@qq.com\n"
         }
       }
     },
@@ -20,6 +24,10 @@
         "falling_magic": {
           "type": "link",
           "content": "https://insorker.github.io/FallingMagic/"
+        },
+        "dino": {
+          "type": "link",
+          "content": "chrome://dino/"
         }
       }
     },
