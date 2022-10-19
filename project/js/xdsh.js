@@ -437,6 +437,32 @@ class Xdsh extends Shell {
         return true;
       }
     }
+    this.cmd['lisp'] = {
+      'help': `lisp
+      Do lisp caculation.`,
+      'execute': (args) => {
+        if (args[0] == '-h') {
+          this.cmdline.history.write(this.cmd['lisp'].help);
+          return true;
+        }
+
+        this.cmdline.history.write('To be continued...');
+        return true;
+      }
+    }
+    this.cmd['card'] = {
+      'help': `card
+      gacha`,
+      'execute': (args) => {
+        if (args[0] == '-h') {
+          this.cmdline.history.write(this.cmd['card'].help);
+          return true;
+        }
+
+        this.cmdline.history.write('To be continued...');
+        return true;
+      }
+    }
   }
 
   setup() {
