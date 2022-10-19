@@ -20,6 +20,9 @@ jobs:
       - name: Build
         run: yarn docs:build
 
+      - name: Project
+        run: mv project docs/.vitepress/dist
+
       - name: Deploy
         uses: peaceiris/actions-gh-pages@v3
         with:

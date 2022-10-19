@@ -4,7 +4,7 @@ export default {
     siteTitle: 'Xdsh',
     nav: [
       { text: '指南', link: '/guide/Xdsh简介/什么是Xdsh' },
-      { text: '栗子', link: 'https://insorker.github.io/xdsh/xdsh-demo.html' },
+      { text: '栗子', link: 'https://insorker.github.io/xdsh/project/' },
       {
         text: 'v0.1.0',
         items: [

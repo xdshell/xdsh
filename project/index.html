@@ -7,7 +7,7 @@
   <title>xdsh</title>
   <link href="https://fonts.googleapis.com/css?family=Cutive+Mono" rel="stylesheet">
   <!-- <link rel="stylesheet" href="./css/xdsh.css">  -->
-  <link rel="stylesheet" href="/xdsh/css/xdsh.css">
+  <link rel="stylesheet" href="/xdsh/project/css/xdsh.css">
 </head>
 <body>
   <div class="content">
@@ -34,14 +34,14 @@
   </div>
 
   <!-- <script src="./js/xdsh.js"></script> -->
-  <script src="/xdsh/js/xdsh.js"></script>
+  <script src="/xdsh/project/js/xdsh.js"></script>
   <script>
     let cmdline = new Cmdline(document.getElementsByClassName('cmdline')[0]);
     let xdsh = new Xdsh(cmdline);
     xdsh.setup();
 
     // let file = readFile('https://insorker.github.io/xdsh/image/image.json');
-    let file = readFile('/xdsh/image/image.json');
+    let file = readFile('/xdsh/project/image/image.json');
     if (file) {
       let img = JSON.parse(file);
       xdsh.loadImage(img);
