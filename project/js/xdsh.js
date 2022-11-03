@@ -83,10 +83,12 @@ class Shell {
           }
 
           this.cmdline.history.write('All of the commands are listed below.');
+          this.cmdline.history.write('');
           let commands = '';
           for (let key in this.cmd)
             commands += key + ' '
           this.cmdline.history.write(commands);
+          this.cmdline.history.write('');
           this.cmdline.history.write('Type "[command] -h" for more infomation.');
           return true;
         }
@@ -393,12 +395,12 @@ class Xdsh extends Shell {
         return true;
       }
     }
-    this.cmd['image'] = {
-      'help': `image
+    this.cmd['import'] = {
+      'help': `import
       Load a xdsh image from json file.`,
       'execute': (args) => {
         if (args[0] == '-h') {
-          this.cmdline.history.write(this.cmd['image'].help);
+          this.cmdline.history.write(this.cmd['import'].help);
           return true;
         }
 
@@ -424,6 +426,26 @@ class Xdsh extends Shell {
         return true;
       }
     }
+    this.cmd['export'] = {
+      'help': `export
+      Download current xdsh image.`,
+      'execute': (args) => {
+        if (args[0] == '-h') {
+          this.cmdline.history.write(this.cmd['export'].help);
+          return true;
+        }
+
+        // https://stackoverflow.com/questions/19721439/download-json-object-as-a-file-from-browser
+        let dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(this.dirTree[this.dirRoot]));
+        let downloadAnchorNode = document.createElement('a');
+        downloadAnchorNode.setAttribute("href", dataStr);
+        downloadAnchorNode.setAttribute("download", "image.json");
+        downloadAnchorNode.click();
+        downloadAnchorNode.remove();
+        
+        return true;
+      }
+    }
     this.cmd['rm'] = {
       'help': `rm
       Remove files or directories.More information: https://www.gnu.org/software/coreutils/rm.`,
@@ -434,6 +456,50 @@ class Xdsh extends Shell {
         }
 
         this.cmdline.history.write('你在干神魔？');
+        return true;
+      }
+    }
+    this.cmd['mkdir'] = {
+      'help': `mkdir
+      Creates a directory.More information: https://www.gnu.org/software/coreutils/mkdir.`,
+      'execute': (args) => {
+        if (args[0] == '-h' || args.length == 0) {
+          this.cmdline.history.write(this.cmd['mkdir'].help);
+          return true;
+        }
+
+        this.dirStack[this.dirStack.length - 1].tree.content[args[0]] = {
+          'type': 'dir',
+          'content': {},
+        };
+        
+        return true;
+      }
+    }
+    this.cmd['touch'] = {
+      'help': `touch
+      Change a file access and modification times (atime, mtime).More information: https://www.gnu.org/software/coreutils/touch.`,
+      'execute': (args) => {
+        if (args[0] == '-h' || args.length == 0) {
+          this.cmdline.history.write(this.cmd['touch'].help);
+          return true;
+        }
+
+        const fileSelector = document.createElement('input');
+        fileSelector.setAttribute('type', 'file');
+        fileSelector.setAttribute('accept', '.txt');
+        fileSelector.addEventListener('change', (event) => {
+          let reader = new FileReader();
+          reader.readAsText(fileSelector.files[0], 'utf-8');
+          reader.onload = () => {
+            this.dirStack[this.dirStack.length - 1].tree.content[args[0]] = {
+              'type': 'file',
+              'content': reader.result,
+            };
+          }
+        });
+        fileSelector.click();
+        
         return true;
       }
     }
