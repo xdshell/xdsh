@@ -6,7 +6,7 @@ export default {
       { text: '指南', link: '/guide/Xdsh简介/什么是Xdsh' },
       { text: '栗子', link: 'https://insorker.github.io/xdsh/project/' },
       {
-        text: 'v0.1.0',
+        text: 'v0.2.0',
         items: [
           { text: 'Changlog', link: 'https://github.com/insorker/xdsh/blob/master/CHANGELOG.md' },
         ]
