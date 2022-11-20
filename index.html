@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>xdsh</title>
+  <link href="https://fonts.googleapis.com/css?family=Cutive+Mono" rel="stylesheet">
+  <link rel="stylesheet" href="./xdsh.css"> 
+  <!-- <link rel="stylesheet" href="/xdsh/project/css/xdsh.css"> -->
+</head>
+<body>
+  <div class="content">
+    <div class="brief">
+      Hi, I'm 油泥怪/茶狐/insorker/..., a student now studying in NJUPT.<br>
+      More infomation about me?<br>
+      Try to find out in my system.<br>
+      You can type 'help' to get help, or type 'help -h' to get help's help.<br>
+      Go there for <a href="https://insorker.github.io/xdsh/">documents</a>.<br>
+      Em...Now...<br>
+      Wabby...Wabbo...<br><br>
+      <div style="color: #ddc871;">
+        Xdsh v0.1.0<br>
+        Produced in 1900<br><br>
+      </div>
+    </div>
+    <div class="cmdline">
+      <div class="cmdline__history"></div>
+      <div class="cmdline__input">
+        <span class="cmdline__prompt"></span>
+        <span class="cmdline__command" contenteditable tabindex="1"></span>
+        <span class="cmdline__auto-complete"></span>
+      </div>
+    </div>
+  </div>
+
+  <script src="./xdsh.js"></script>
+  <!-- <script src="/xdsh/project/js/xdsh.js"></script> -->
+  <script>
+    let cmdline = new Cmdline(document.getElementsByClassName('cmdline')[0]);
+    let xdsh = new Xdsh(cmdline);
+    xdsh.setup();
+
+    let file = readFile('https://insorker.github.io/xdsh/image/image.json');
+    // let file = readFile('/xdsh/project/image/image.json');
+    if (file) {
+      let img = JSON.parse(file);
+      xdsh.loadImage(img);
+    }
+    else alert('Loading image failed');
+
+    function readFile(name) {
+        let xhr = new XMLHttpRequest(),
+          okStatus = document.location.protocol === "file:" ? 0 : 200;
+        xhr.open('GET', name, false);
+        xhr.overrideMimeType("text/html;charset=utf-8");
+        xhr.send(null);
+        return xhr.status === okStatus ? xhr.responseText : null;
+    }
+  </script>
+</body>
+</html>

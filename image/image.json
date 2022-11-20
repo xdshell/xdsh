@@ -1,0 +1,39 @@
+{
+  "type": "dir",
+  "content": {
+    "blog": {
+      "type": "dir",
+      "content": {
+        "github.io": {
+          "type": "link",
+          "content": "https://insorker.github.io/"
+        },
+        "bilibili": {
+          "type": "link",
+          "content": "https://space.bilibili.com/434618849"
+        },
+        "HowToContactMe": {
+          "type": "file",
+          "content": "我的博客有好看的视频，我的视频有好看的博客。\n- QQ: 2677331029\n- Email: 2677331029@qq.com\n"
+        }
+      }
+    },
+    "game": {
+      "type": "dir",
+      "content": {
+        "falling_magic": {
+          "type": "link",
+          "content": "https://insorker.github.io/FallingMagic/"
+        },
+        "dino": {
+          "type": "link",
+          "content": "chrome://dino/"
+        }
+      }
+    },
+    "README": {
+      "type": "file",
+      "content": "This is a fake shell made by javascript. Type 'help' for more infomation."
+    }
+  }
+}
