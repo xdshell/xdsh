@@ -4,17 +4,12 @@ import commonjs from '@rollup/plugin-commonjs'
 import terser from '@rollup/plugin-terser'
 import serve from 'rollup-plugin-serve'
 import livereload from 'rollup-plugin-livereload'
+import copy from 'rollup-plugin-copy'
 
 export default {
-  // solution to failure of rollup watch: https://github.com/rollup/rollup/issues/1666#issuecomment-536227450
-  watch: {
-    // include: 'src/**/*'
-    chokidar: {
-      // paths: 'src/**',
-      usePolling: true
-    }
-  },
+  // solution to failure of rollup watch: https://github.com/rollup/rollup/issues/1828#issuecomment-675629244
   input: 'src/xdsh.ts',
+  external: ['./xdsh.css'],
   output: [
     {
       dir: 'dist',
@@ -42,6 +37,11 @@ export default {
       port: 8020,
       openPage: "/public/index.html",
     }),
-    livereload('dist')
+    livereload('dist'),
+    copy({
+      targets: [
+        { src: 'src/xdsh.css', dest: 'dist' }
+      ]
+    })
   ],
 }

@@ -1,34 +1,30 @@
-import { File, FileType, FileSystem } from './shell/filesystem/filesystem'
+import { FileType } from './shell/filesystem'
+import { Shell } from './shell/shell'
+import { Terminal } from './terminal/terminal'
 
-let fs: FileSystem = new FileSystem()
-
-fs.push({
-  name: '1.txt',
-  type: FileType.text,
-  body: 'hello, world'
-})
-
-fs.push({
-  name: '1.dir',
-  type: FileType.dir,
-  body: []
-})
-
-fs.walkDown('1.dir')
-
-fs.push({
-  name: '2.dir',
+let terminal: Terminal = new Terminal(<HTMLDivElement>document.getElementsByClassName('xdsh-terminal')[0])
+let shell: Shell = new Shell(terminal)
+shell.init()
+shell.fs.image = {
+  name: '/',
   type: FileType.dir,
   body: [
     {
+      name: '1.txt',
+      type: FileType.text,
+      body: '1'
+    },
+    {
       name: '2.txt',
       type: FileType.text,
-      body: 'hello, world'
-    }
+      body: '2'
+    },
+    {
+      name: 'insorker',
+      type: FileType.dir,
+      body: [
+
+      ]
+    },
   ]
-})
-fs.walkDown('2.dir')
-fs.pop('2.txt')
-fs.walkUp()
-// fs.walkUp()
-// fs.walkUp()
+}

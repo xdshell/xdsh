@@ -1,9 +1,13 @@
-class Terminal {
+export class Terminal {
   history: TerminalHistory
+  cmdline: TerminalCommandLine
 
   constructor(cli: HTMLDivElement) {
     this.history = new TerminalHistory(
-      <HTMLDivElement>cli.getElementsByClassName('xdsh-cli__history')[0]
+      <HTMLDivElement>cli.getElementsByClassName('xdsh-history')[0]
+    )
+    this.cmdline = new TerminalCommandLine(
+      <HTMLDivElement>cli.getElementsByClassName('xdsh-cli')[0]
     )
   }
 }
@@ -15,19 +19,19 @@ class TerminalHistory {
     this.history = history
   }
 
-  append(record: Element) {
+  appendElement(record: Element) {
     this.history.append(record)
   }
 
-  writeSentence(text: string) {
+  appendSentence(text: string) {
     this.history.append(text)
     this.history.append(document.createElement('br'))
   }
 
-  writePassage(text: string) {
+  appendPassage(text: string) {
     let lines = text.split('\n')
     for (let line of lines) {
-      this.writeSentence(line)
+      this.appendSentence(line)
     }
   }
 
@@ -36,7 +40,7 @@ class TerminalHistory {
   }
 }
 
-class TerminalCli {
+class TerminalCommandLine {
   prompt: HTMLSpanElement
   command: HTMLSpanElement
   autoComplete: HTMLSpanElement
@@ -66,15 +70,19 @@ class TerminalCli {
     }
   }
 
-  readLine(): string {
-    return this.readPrompt() + this.readLine
+  getLine(): string {
+    return this.getPrompt() + this.getCommad()
   }
 
-  readPrompt(): string {
+  getPrompt(): string {
     return this.prompt.innerText
   }
 
-  readCommad(): string {
+  setPrompt(text: string) {
+    this.prompt.innerHTML = text
+  }
+
+  getCommad(): string {
     return this.command.innerText
   }
 

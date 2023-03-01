@@ -1,3 +1,9 @@
+.xdsh-terminal {
+  cursor: text;
+  font-size: 18px;
+  font-family: Cutive Mono, monospace, sans-serif;
+}
+
 .xdsh-cli {
   display: flex;
 }
