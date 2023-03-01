@@ -1,0 +1,39 @@
+{
+  "name": "xdsh",
+  "version": "0.3.0",
+  "description": "A shell simulator running on website",
+  "main": "index.js",
+  "scripts": {
+    "dev": "rollup -cw --bundleConfigAsCjs",
+    "build": "rollup -c --bundleConfigAsCjs"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/insorker/xdsh.git"
+  },
+  "keywords": [
+    "shell"
+  ],
+  "author": "insorker",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/insorker/xdsh/issues"
+  },
+  "homepage": "https://github.com/insorker/xdsh#readme",
+  "devDependencies": {
+    "@rollup/plugin-commonjs": "^24.0.1",
+    "@rollup/plugin-node-resolve": "^15.0.1",
+    "@rollup/plugin-terser": "^0.4.0",
+    "@rollup/plugin-typescript": "^11.0.0",
+    "cz-conventional-changelog": "^3.3.0",
+    "rollup": "^3.17.3",
+    "rollup-plugin-livereload": "^2.0.5",
+    "rollup-plugin-serve": "^2.0.2",
+    "typescript": "^4.9.5"
+  },
+  "config": {
+    "commitizen": {
+      "path": "./node_modules/cz-conventional-changelog"
+    }
+  }
+}
