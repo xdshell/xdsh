@@ -86,6 +86,10 @@ class TerminalCommandLine {
     return this.command.innerText
   }
 
+  setCommand(cmd: string) {
+    this.command.innerHTML = cmd
+  }
+
   clear() {
     this.command.innerHTML = ''
     this.autoComplete.innerHTML = ''

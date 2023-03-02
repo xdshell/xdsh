@@ -1,18 +1,19 @@
 export enum FileType {
-  dir, text, link
+  dir, text, link, exe
 }
 
 type DirBody = Array<File>
 type TextBody = string
 type LinkBody = string
+type ExeBody = string
 
 export interface File {
   name: string
   type: FileType
-  body: DirBody | TextBody | LinkBody
+  body: DirBody | TextBody | LinkBody | ExeBody
 }
 
-export interface Path extends File {
+export interface Directory extends File {
   name: string
   type: FileType.dir
   body: DirBody
@@ -20,16 +21,31 @@ export interface Path extends File {
 
 export class FileSystem {
   image: File
-  path: Path[]
+  path: Directory[]
 
   constructor(image?: File) {
-    this.image = image ? image : {
+    this.image = {
       name: '/',
       type: FileType.dir,
-      body: []
+      body: [
+        {
+          name: 'bin',
+          type: FileType.dir,
+          body: []
+        },
+        {
+          name: 'home',
+          type: FileType.dir,
+          body: []
+        }
+      ]
     }
 
-    this.path = [<Path>this.image]
+    this.path = [<Directory>this.image]
+  }
+
+  execute() {
+    
   }
 
   setImage(image: File) {
@@ -37,11 +53,36 @@ export class FileSystem {
     this.cdRoot()
   }
 
-  checkPath(pathList: string[]): boolean {
-    let path: Path[] = []
+  // only if path ended with dir
+  checkPathStrict(pathList: string[]): boolean {
+    if (pathList.length == 0) {
+      return false
+    }
+
+    let path: Directory[] = []
     this.cdRoot(path)
 
     return this.setWorkingDirectory(pathList, path)
+  }
+
+  checkPath(pathList: string[]): boolean {
+    if (pathList.length == 0) {
+      return false
+    }
+
+    let path: Directory[] = []
+    this.cdRoot(path)
+
+    if (this.checkPathStrict(pathList.slice(0, -1))) {
+      this.setWorkingDirectory(pathList.slice(0, -1), path)
+      if (this.getFile(pathList.at(-1)!, this.getWorkingDirectory(path))) {
+        return true
+      }
+
+      return false
+    }
+
+    return false
   }
 
   completePath(pathList: string[]): string {
@@ -49,10 +90,9 @@ export class FileSystem {
       return ''
     }
 
-    let path: Path[] = []
+    let path: Directory[] = []
     this.cdRoot(path)
-    console.log(pathList)
-    
+
     if (pathList.length == 1 || this.setWorkingDirectory(pathList.slice(0, -1), path)) {
       let dir: File[] = path.at(-1)!.body
       let arg: string = pathList.at(-1)!
@@ -73,7 +113,7 @@ export class FileSystem {
   /**
    * call checkPath before, otherwise there's no path check
    */
-  setWorkingDirectory(pathList: string[], path: Path[] = this.path): boolean {
+  setWorkingDirectory(pathList: string[], path: Directory[] = this.path): boolean {
     for (let name of pathList) {
       if (name == '.') {
         continue
@@ -92,14 +132,12 @@ export class FileSystem {
     return true
   }
 
-  getWorkingDirectory(): Path {
-    return this.path.at(-1)!
+  getWorkingDirectory(path: Directory[] = this.path): Directory {
+    return path.at(-1)!
   }
 
-  getFile(name: string): File | undefined {
-    let wd: Path = this.getWorkingDirectory()
-
-    for (let file of wd.body) {
+  getFile(name: string, directory: Directory = this.getWorkingDirectory()): File | undefined {
+    for (let file of directory.body) {
       if (file.name == name) {
         return file
       }
@@ -111,7 +149,7 @@ export class FileSystem {
   }
 
   delete(name: string, isDir: boolean = false): boolean {
-    let wd: Path = this.getWorkingDirectory()
+    let wd: Directory = this.getWorkingDirectory()
     let files: DirBody = wd.body
 
     for (let idx in files) {
@@ -130,23 +168,23 @@ export class FileSystem {
     return false
   }
 
-  cdRoot(path: Path[] = this.path) {
+  cdRoot(path: Directory[] = this.path) {
     path.splice(0)
-    path.push(<Path>this.image)
+    path.push(<Directory>this.image)
   }
 
-  cdParentDir(path: Path[] = this.path) {
+  cdParentDir(path: Directory[] = this.path) {
     if (path.length > 1) {
       path.pop()
     }
   }
 
-  cdChildDir(name: string, path: Path[] = this.path): boolean {
-    let wd: Path = this.getWorkingDirectory()
+  cdChildDir(name: string, path: Directory[] = this.path): boolean {
+    let wd: Directory = this.getWorkingDirectory()
 
     for (let file of wd.body) {
       if (file.type == FileType.dir && file.name == name) {
-        path.push(<Path>file)
+        path.push(<Directory>file)
         return true
       }
     }
