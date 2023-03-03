@@ -1,0 +1,61 @@
+.xdsh-terminal {
+  cursor: text;
+  font-size: 18px;
+  font-weight: 800;
+  color: #6c6c6c;
+  font-family: Cutive Mono, monospace, sans-serif;
+}
+
+.xdsh-cli {
+  display: flex;
+}
+
+.xdsh-cli__prompt {
+  flex: 0 1 auto;
+}
+
+.xdsh-cli__command {
+  min-width: 1px;
+  flex: 0 1 auto;
+}
+
+.xdsh-cli__command:focus {
+  outline: none;
+}
+
+.xdsh-cli__auto-complete {
+  color: #cfcfcf;
+  flex: 1 1 auto;
+}
+
+.xdsh-cli__time {
+  flex: 0 1 auto;
+  margin-left: auto;
+}
+
+.xdsh-cmd__ls {
+  display: flex;
+}
+
+.xdsh-cmd__ls-dir {
+  margin-right: 24px;
+  flex: 0 0 auto;
+  color: #3c9566;
+}
+
+.xdsh-cmd__ls-text {
+  margin-right: 24px;
+  flex: 0 0 auto;
+}
+
+.xdsh-cmd__ls-link {
+  margin-right: 24px;
+  flex: 0 0 auto;
+  color: #a35c8f;
+}
+
+.xdsh-cmd__ls-exe {
+  margin-right: 24px;
+  flex: 0 0 auto;
+  color: #4896a8
+}

@@ -30,6 +30,11 @@ export default [
         format: 'esm',
         entryFileNames: '[name].esm.js',
       },
+      {
+        dir: 'demo/assets',
+        formate: 'umd',
+        entryFileNames: '[name].umd.js',
+      }
     ],
     plugins: [
       nodeResolve(),
@@ -39,12 +44,15 @@ export default [
       serve({
         open: true,
         port: 8020,
-        openPage: "/public/index.html",
+        openPage: "/demo/index.html",
+        contentBase: 'demo',
       }),
       livereload('dist'),
       copy({
         targets: [
-          { src: 'src/xdsh.css', dest: 'dist' }
+          { src: 'src/xdsh.css', dest: 'dist' },
+          { src: 'src/xdsh.css', dest: 'demo/assets' },
+          { src: 'public/index.html', dest: 'demo' }
         ]
       }),
       // https://github.com/microsoft/TypeScript/issues/25400#issuecomment-580720429
