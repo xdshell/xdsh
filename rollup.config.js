@@ -17,12 +17,12 @@ export default [
     output: [
       {
         dir: 'dist',
-        formate: 'cjs',
+        format: 'cjs',
         entryFileNames: '[name].cjs.js',
       },
       {
         dir: 'dist',
-        formate: 'umd',
+        format: 'umd',
         entryFileNames: '[name].umd.js',
       },
       {
@@ -32,7 +32,7 @@ export default [
       },
       {
         dir: 'demo/assets',
-        formate: 'umd',
+        format: 'umd',
         entryFileNames: '[name].umd.js',
       }
     ],
