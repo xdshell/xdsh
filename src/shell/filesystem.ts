@@ -6,6 +6,7 @@ type DirBody = Array<File>
 type TextBody = string
 type LinkBody = string
 type ExeBody = string
+type Path = [...directory: Directory[], file: File]
 
 export interface File {
   name: string
@@ -19,9 +20,15 @@ export interface Directory extends File {
   body: DirBody
 }
 
+export interface ExecutableFile extends File {
+  name: string
+  type: FileType.exe
+  body: string
+} 
+
 export class FileSystem {
   image: File
-  path: Directory[]
+  path: Path
 
   constructor(image?: File) {
     this.image = {
@@ -32,11 +39,6 @@ export class FileSystem {
           name: 'bin',
           type: FileType.dir,
           body: []
-        },
-        {
-          name: 'home',
-          type: FileType.dir,
-          body: []
         }
       ]
     }
@@ -44,64 +46,68 @@ export class FileSystem {
     this.path = [<Directory>this.image]
   }
 
-  execute() {
-    
+  appendImage(image: File) {
+    (<DirBody>this.image.body).push(image)
   }
 
-  setImage(image: File) {
-    this.image = image
-    this.cdRoot()
-  }
+  // execute(exe: ExecutableFile): boolean {
+  //   return Function(exe.body)()
+  // }
 
-  // only if path ended with dir
-  checkPathStrict(pathList: string[]): boolean {
-    if (pathList.length == 0) {
-      return false
+  // getExecutableFile() {
+
+  // }
+
+  parsePath(pathString: string): Path | undefined {
+    if (pathString.length == 0) return
+
+    let pathStringList: string[] = pathString.split('/')
+    let virtualPath: Path = <Path>this.path.slice()
+    let file: File | undefined
+
+    if (pathString[0] == '/') {
+      pathStringList[0] = '/'
+    }
+    if (pathStringList.at(-1) == '') {
+      pathStringList.pop()
     }
 
-    let path: Directory[] = []
-    this.cdRoot(path)
-
-    return this.setWorkingDirectory(pathList, path)
-  }
-
-  checkPath(pathList: string[]): boolean {
-    if (pathList.length == 0) {
-      return false
-    }
-
-    let path: Directory[] = []
-    this.cdRoot(path)
-
-    if (this.checkPathStrict(pathList.slice(0, -1))) {
-      this.setWorkingDirectory(pathList.slice(0, -1), path)
-      if (this.getFile(pathList.at(-1)!, this.getWorkingDirectory(path))) {
-        return true
+    for (let name of pathStringList.slice(0, -1)) {
+      if (name == '.') {
+        continue
       }
-
-      return false
+      else if (name == '..') {
+        this.cdParentDir(virtualPath)
+      }
+      else if (name == this.image.name) {
+        this.cdRoot(virtualPath)
+      }
+      else if (this.cdChildDir(name, virtualPath) == false) {
+        return
+      }
     }
 
-    return false
+    file = this.getFile(pathStringList.at(-1)!, <Directory>virtualPath.at(-1))
+    if (file == undefined) {
+      return
+    } else {
+      virtualPath.push(file)
+    }
+
+    return virtualPath
   }
 
-  completePath(pathList: string[]): string {
-    if (pathList.length == 0) {
-      return ''
-    }
+  completePath(pathString: string): string {
+    let dirPathString: string = pathString.slice(0, pathString.lastIndexOf('/'))
+    let fileString: string = pathString.slice(pathString.lastIndexOf('/') + 1)
+    let virtualPath = this.parsePath(dirPathString)
 
-    let path: Directory[] = []
-    this.cdRoot(path)
-
-    if (pathList.length == 1 || this.setWorkingDirectory(pathList.slice(0, -1), path)) {
-      let dir: File[] = path.at(-1)!.body
-      let arg: string = pathList.at(-1)!
-
-      for (let file of dir) {
-        if (file.name.length > arg.length &&
-          file.name.slice(0, arg.length) == arg)
+    if (virtualPath != undefined) {
+      for (let file of (<Directory>virtualPath.at(-1)).body) {
+        if (file.name.length > fileString.length &&
+          file.name.slice(0, fileString.length) == fileString)
         {
-          let completeText = file.name.slice(arg.length)
+          let completeText = file.name.slice(fileString.length)
           return completeText
         }
       }
@@ -110,30 +116,19 @@ export class FileSystem {
     return ''
   }
 
-  /**
-   * call checkPath before, otherwise there's no path check
-   */
-  setWorkingDirectory(pathList: string[], path: Directory[] = this.path): boolean {
-    for (let name of pathList) {
-      if (name == '.') {
-        continue
-      }
-      else if (name == '..') {
-        this.cdParentDir(path)
-      }
-      else if (name == this.image.name) {
-        this.cdRoot(path)
-      }
-      else if (this.cdChildDir(name, path) == false) {
-        return false
-      }
+  setWorkingDirectory(pathString: string, path: Path = this.path): boolean {
+    let virtualPath = this.parsePath(pathString)
+
+    if (virtualPath) {
+      path = virtualPath
+      return true
     }
 
-    return true
+    return false
   }
 
-  getWorkingDirectory(path: Directory[] = this.path): Directory {
-    return path.at(-1)!
+  getWorkingDirectory(path: Path = this.path): Directory {
+    return <Directory>path.at(-1)!
   }
 
   getFile(name: string, directory: Directory = this.getWorkingDirectory()): File | undefined {
@@ -149,8 +144,7 @@ export class FileSystem {
   }
 
   delete(name: string, isDir: boolean = false): boolean {
-    let wd: Directory = this.getWorkingDirectory()
-    let files: DirBody = wd.body
+    let files: DirBody = this.getWorkingDirectory().body
 
     for (let idx in files) {
       if (files[idx].name == name) {
@@ -168,21 +162,21 @@ export class FileSystem {
     return false
   }
 
-  cdRoot(path: Directory[] = this.path) {
+  cdRoot(path: Path = this.path) {
     path.splice(0)
     path.push(<Directory>this.image)
   }
 
-  cdParentDir(path: Directory[] = this.path) {
+  cdParentDir(path: Path = this.path) {
     if (path.length > 1) {
       path.pop()
     }
   }
 
-  cdChildDir(name: string, path: Directory[] = this.path): boolean {
-    let wd: Directory = this.getWorkingDirectory()
+  cdChildDir(name: string, path: Path = this.path): boolean {
+    let files: File[] = this.getWorkingDirectory().body
 
-    for (let file of wd.body) {
+    for (let file of files) {
       if (file.type == FileType.dir && file.name == name) {
         path.push(<Directory>file)
         return true
