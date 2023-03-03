@@ -1,12 +1,12 @@
 export enum FileType {
-  dir, text, link, exe
+  dir=0, text=1, link=2, exe=3
 }
 
-type DirBody = Array<File>
+export type DirBody = Array<File>
 type TextBody = string
 type LinkBody = string
 type ExeBody = string
-type Path = [...directory: Directory[], file: File]
+export type Path = [...directory: Directory[], file: File ]
 
 export interface File {
   name: string
@@ -15,13 +15,16 @@ export interface File {
 }
 
 export interface Directory extends File {
-  name: string
   type: FileType.dir
   body: DirBody
 }
 
+export interface Text extends File {
+  type: FileType.text
+  body: TextBody
+}
+
 export interface ExecutableFile extends File {
-  name: string
   type: FileType.exe
   body: string
 } 
@@ -46,15 +49,9 @@ export class FileSystem {
               body: []
             },
             {
-              name: 'local',
-              type: FileType.dir,
-              body: [
-                {
-                  name: 'bin',
-                  type: FileType.dir,
-                  body: []
-                }
-              ]
+              name: 'config',
+              type: FileType.text,
+              body: ''
             }
           ]
         }
@@ -64,7 +61,14 @@ export class FileSystem {
     this.path = [<Directory>this.image]
     this.exePath = [
       <Directory>this.parsePath('/usr/bin')?.at(-1),
-      <Directory>this.parsePath('/usr/local/bin')?.at(-1)
+    ]
+  }
+
+  setImage(image: File) {
+    this.image = image
+    this.path = [<Directory>this.image]
+    this.exePath = [
+      <Directory>this.parsePath('/usr/bin')?.at(-1),
     ]
   }
 
@@ -137,6 +141,23 @@ export class FileSystem {
     return virtualPath
   }
 
+  parsePathToString(path: Path): string {
+    let pathString: string = ''
+
+    for (let idx in path) {
+      if (path[idx].name == '/')
+        pathString += path[idx].name
+      else if (parseInt(idx) == path.length - 1) {
+        pathString += path[idx].name
+      }
+      else {
+        pathString += path[idx].name + '/'
+      }
+    }
+
+    return pathString
+  }
+
   completePath(pathString: string): string {
     let lastIndexOfSlash = pathString.lastIndexOf('/')
     let dirPathString: string
@@ -169,11 +190,16 @@ export class FileSystem {
     return ''
   }
 
-  setWorkingDirectory(pathString: string, path: Path = this.path): boolean {
+  setWorkingDirectory(pathString: string, path?: Path): boolean {
     let virtualPath = this.parsePath(pathString)
 
-    if (virtualPath) {
-      path = virtualPath
+    if (virtualPath && virtualPath.at(-1)?.type == FileType.dir) {
+      if (path) {
+        path = virtualPath
+      }
+      else {
+        this.path = virtualPath
+      }
       return true
     }
 
@@ -182,6 +208,10 @@ export class FileSystem {
 
   getWorkingDirectory(path: Path = this.path): Directory {
     return <Directory>path.at(-1)!
+  }
+
+  getWorkingDirectoryPath(path: Path = this.path): Path {
+    return <Path>path.slice()
   }
 
   append(file: File): boolean {

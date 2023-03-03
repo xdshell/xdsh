@@ -1,7 +1,7 @@
-import { FileType } from './shell/filesystem'
-import { Shell } from './shell/shell'
+import { Xdsh } from './xdsh'
 import { Terminal } from './terminal/terminal'
+import image from './image.json'
 
 let terminal: Terminal = new Terminal(<HTMLDivElement>document.getElementsByClassName('xdsh-terminal')[0])
-let shell: Shell = new Shell(terminal)
-shell.init()
+let xdsh: Xdsh = new Xdsh(terminal)
+xdsh.init(image)

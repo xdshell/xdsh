@@ -1,0 +1,27 @@
+{
+  "name": "/",
+  "type": 0,
+  "body": [
+    {
+      "name": "usr",
+      "type": 0,
+      "body": [
+        {
+          "name": "bin",
+          "type": 0,
+          "body": []
+        },
+        {
+          "name": "config",
+          "type": 1,
+          "body": "{\"user\": \"insorker\",version:\"v1.0.0\",hostname:\"xdsh\",\"pathNumber\":2}"
+        }
+      ]
+    },
+    {
+      "name": "insorker",
+      "type": 0,
+      "body": []
+    }
+  ]
+}

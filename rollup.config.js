@@ -5,11 +5,15 @@ import terser from '@rollup/plugin-terser'
 import serve from 'rollup-plugin-serve'
 import livereload from 'rollup-plugin-livereload'
 import copy from 'rollup-plugin-copy'
+import json from '@rollup/plugin-json'
 
 // solution to failure of rollup watch: https://github.com/rollup/rollup/issues/1828#issuecomment-675629244
 export default [
   {
-    input: [ 'src/xdsh.ts', 'src/testbench.ts' ],
+    input: [
+      // 'src/xdsh.ts',
+      'src/demo.ts'
+    ],
     output: [
       {
         dir: 'dist',
@@ -42,7 +46,9 @@ export default [
         targets: [
           { src: 'src/xdsh.css', dest: 'dist' }
         ]
-      })
+      }),
+      // https://github.com/microsoft/TypeScript/issues/25400#issuecomment-580720429
+      json()
     ],
   }
 ]

@@ -41,11 +41,13 @@ class TerminalHistory {
 }
 
 class TerminalCommandLine {
+  cli: HTMLDivElement
   prompt: HTMLSpanElement
   command: HTMLSpanElement
   autoComplete: HTMLSpanElement
 
   constructor(cli: HTMLDivElement) {
+    this.cli = cli
     this.prompt = <HTMLSpanElement>cli.getElementsByClassName('xdsh-cli__prompt')[0]
     this.command = <HTMLSpanElement>cli.getElementsByClassName('xdsh-cli__command')[0]
     this.autoComplete = <HTMLSpanElement>cli.getElementsByClassName('xdsh-cli__auto-complete')[0]
@@ -70,8 +72,8 @@ class TerminalCommandLine {
     }
   }
 
-  getLine(): string {
-    return this.getPrompt() + this.getCommad()
+  getLine(): HTMLDivElement {
+    return this.cli.cloneNode(true) as HTMLDivElement
   }
 
   getPrompt(): string {

@@ -1,4 +1,4 @@
-import { File, FileSystem } from './filesystem'
+import { Text, File, Path, FileSystem } from './filesystem'
 import { Terminal } from '../terminal/terminal'
 
 interface Command {
@@ -30,12 +30,20 @@ interface ErrorMsgSet {
   [errorName: string]: ErrorMsg
 }
 
+interface ShellConfig {
+  user: string
+  version: string
+  hostname: string
+  pathNumber: number
+}
+
 export class Shell {
   terminal: Terminal
   fs: FileSystem
   cmdset: CommandSet
   hotkeySet: HotkeySet
   errorMsgSet: ErrorMsgSet
+  config: ShellConfig
 
   constructor(terminal: Terminal) {
     this.terminal = terminal
@@ -53,9 +61,23 @@ export class Shell {
       'IsADirectory': (dir) => `${dir}: Is a directory`,
       'InvalidOption': (option) => `invalid option -- '${option}'`,
     }
+    this.config = {
+      user: 'root',
+      version: '0.0.0',
+      hostname: 'shell',
+      pathNumber: 2
+    }
   }
 
-  init() {
+  init(image?: File) {
+    // set image
+    if (image) {
+      this.fs.setImage(image)
+    }
+
+    // init config
+    this.initConfig()
+
     // auto-complete
     this.terminal.cmdline.command.addEventListener('input', () => {
       this.terminal.cmdline.autoComplete.innerHTML = this.getAutoComplete()
@@ -69,7 +91,7 @@ export class Shell {
       let cmd = this.terminal.cmdline.getCommad()
       let args = this.parseCmd(cmd)
 
-      this.terminal.history.appendSentence(line)
+      this.terminal.history.appendElement(line)
       this.exec(args)
 
       this.terminal.cmdline.clear()
@@ -118,10 +140,37 @@ export class Shell {
         this.hotkeySet['+'][keyName](event)
       }
     }, false)
+
+    // prompt
+    this.setPrompt()
   }
 
-  setPrompt(text: string) {
-    this.terminal.cmdline.setPrompt(text)
+  initConfig() {
+    try {
+      this.config = JSON.parse(
+        (<Text>this.fs.parsePath('/usr/config')!.at(-1)!).body
+      )
+    }
+    catch(e) {
+      console.log('/usr/config :' + e)
+    }
+
+    this.setPrompt()
+  }
+
+  setPrompt() {
+    let wdp = this.fs.getWorkingDirectoryPath().slice()
+    let wdpNumber = this.config.pathNumber > wdp.length ? 0 : wdp.length - this.config.pathNumber
+
+    this.terminal.cmdline.setPrompt(
+      `${this.config.user} ` +
+      `<span style="color:#2d9bf2">
+        ${this.fs.parsePathToString(<Path>wdp.slice(wdpNumber))}
+      </span>` +
+      `<span style="color:#ff6ac1">
+         >&nbsp
+      </span>`
+    )
   }
 
   getAutoComplete(): string {
@@ -145,7 +194,7 @@ export class Shell {
   }
 
   parseCmd(cmd: string): string[] {
-    let args: string[] = cmd.trim().split(/\s+/)
+    let args: string[] = cmd.trimStart().split(/\s+/)
     return args
   }
 

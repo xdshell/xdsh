@@ -7,18 +7,26 @@
   <title>🎉 This is Xdsh ~</title>
   <link href="https://fonts.googleapis.com/css?family=Cutive+Mono" rel="stylesheet">
   <link rel="stylesheet" href="/dist/xdsh.css">
+  <style>
+    .content {
+      margin: 5% 20%;
+    }
+  </style>
 </head>
 <body>
-  <div class="xdsh-terminal">
-    <div class="xdsh-history"></div>
-    <div class="xdsh-cli">
-      <span class="xdsh-cli__prompt">test</span>
-      <span class="xdsh-cli__command" contenteditable tabindex="1"></span>
-      <span class="xdsh-cli__auto-complete"></span>
+  <div class="content">
+    <div class="xdsh-terminal">
+      <div class="xdsh-history"></div>
+      <div class="xdsh-cli">
+        <span class="xdsh-cli__prompt"></span>
+        <span class="xdsh-cli__command" contenteditable tabindex="1"></span>
+        <span class="xdsh-cli__auto-complete"></span>
+        <span class="xdsh-cli__time">time</span>
+      </div>
     </div>
   </div>
   
   <!-- <script src="/dist/xdsh.umd.js"></script> -->
-  <script src="/dist/testbench.umd.js"></script>
+  <script src="/dist/demo.umd.js"></script>
 </body>
 </html>
