@@ -95,6 +95,7 @@ export class Shell {
       this.exec(args)
 
       this.terminal.cmdline.clear()
+      this.terminal.cmdline.setTime()
     });
 
     this.registerHotkey('Tab', (event)=>{

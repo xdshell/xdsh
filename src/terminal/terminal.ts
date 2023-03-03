@@ -45,12 +45,14 @@ class TerminalCommandLine {
   prompt: HTMLSpanElement
   command: HTMLSpanElement
   autoComplete: HTMLSpanElement
+  time: HTMLSpanElement
 
   constructor(cli: HTMLDivElement) {
     this.cli = cli
     this.prompt = <HTMLSpanElement>cli.getElementsByClassName('xdsh-cli__prompt')[0]
     this.command = <HTMLSpanElement>cli.getElementsByClassName('xdsh-cli__command')[0]
     this.autoComplete = <HTMLSpanElement>cli.getElementsByClassName('xdsh-cli__auto-complete')[0]
+    this.time = <HTMLSpanElement>cli.getElementsByClassName('xdsh-cli__time')[0]
 
     this.command.addEventListener('keypress', (event: KeyboardEvent) => {
       if (event.key === "Enter") {
@@ -60,6 +62,7 @@ class TerminalCommandLine {
     this.autoComplete.onclick = () => {
       this.focus()
     }
+    this.setTime()
   }
 
   focus() {
@@ -90,6 +93,13 @@ class TerminalCommandLine {
 
   setCommand(cmd: string) {
     this.command.innerHTML = cmd
+  }
+
+  setTime() {
+    let date = new Date()
+    this.time.innerHTML = (new Date(
+      date.getTime() - date.getTimezoneOffset() * 60000
+    )).toISOString().slice(11, 19).replace(/-/g, "/")
   }
 
   clear() {
