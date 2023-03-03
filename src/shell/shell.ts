@@ -16,9 +16,10 @@ interface Hotkey {
 }
 
 interface HotkeySet {
+  '+': Hotkey
   'ctrl+': Hotkey
   'alt+': Hotkey
-  // [name: string]: (event: KeyboardEvent) => void
+  [name: string]: Hotkey
 }
 
 interface ErrorMsg {
@@ -41,6 +42,7 @@ export class Shell {
     this.fs = new FileSystem()
     this.cmdset = {}
     this.hotkeySet = {
+      '+': {},
       'ctrl+': {},
       'alt+': {}
     }
@@ -61,16 +63,16 @@ export class Shell {
 
     // hotkeySet
     this.registerHotkey('Enter', (event)=>{
-      event.preventDefault();
+      event.preventDefault()
 
-      let line = this.terminal.cmdline.getLine();
-      let cmd = this.terminal.cmdline.getCommad();
-      let args = this.cmdParse(cmd)
+      let line = this.terminal.cmdline.getLine()
+      let cmd = this.terminal.cmdline.getCommad()
+      let args = this.parseCmd(cmd)
 
-      this.terminal.history.appendSentence(line);
+      this.terminal.history.appendSentence(line)
       this.exec(args)
 
-      this.terminal.cmdline.clear();
+      this.terminal.cmdline.clear()
     });
 
     this.registerHotkey('Tab', (event)=>{
@@ -81,34 +83,41 @@ export class Shell {
           this.terminal.cmdline.getCommad() +
           this.getAutoComplete()
         )
+        this.terminal.cmdline.autoComplete.innerHTML = ''
         this.terminal.cmdline.focus()
       }
-    });
+    })
 
     this.registerHotkey('l', (event)=>{
-      event.preventDefault();
+      event.preventDefault()
 
-      this.terminal.cmdline.clear();
-    }, true);
+      this.terminal.history.clear()
+      this.terminal.cmdline.clear()
+    }, true)
+
+    this.registerHotkey('u', (event)=>{
+      event.preventDefault()
+
+      this.terminal.cmdline.clear()
+    }, true)
 
     document.addEventListener('keydown', (event) => {
-      let keyName: string = event.key;
+      let keyName: string = event.key
 
       if (event.ctrlKey) {
         if (this.hotkeySet['ctrl+'][keyName]) {
-          this.hotkeySet['ctrl+'][keyName](event);
+          this.hotkeySet['ctrl+'][keyName](event)
         }
       }
       else if (event.altKey) {
         if (this.hotkeySet['alt+'][keyName]) {
-          this.hotkeySet['alt+'][keyName](event);
+          this.hotkeySet['alt+'][keyName](event)
         }
       }
-    }, false);
-  }
-
-  setImage(image: File) {
-    this.fs.setImage(image)
+      else if (this.hotkeySet['+'][keyName]) {
+        this.hotkeySet['+'][keyName](event)
+      }
+    }, false)
   }
 
   setPrompt(text: string) {
@@ -116,7 +125,7 @@ export class Shell {
   }
 
   getAutoComplete(): string {
-    let args: string[] = this.cmdParse(this.terminal.cmdline.getCommad())
+    let args: string[] = this.parseCmd(this.terminal.cmdline.getCommad())
 
     if (args.length == 1) {
       for (let cmd in this.cmdset) {
@@ -129,35 +138,22 @@ export class Shell {
       }
     }
     else if (args.length > 1) {
-      return this.fs.completePath(this.pathParse(args.at(-1)!))
+      return this.fs.completePath(args.at(-1)!)
     }
 
     return ''
   }
 
-  pathParse(path: string): string[] {
-    if (path.length == 0) {
-      return [ '' ]
-    }
-
-    let pathList: string[] = path.split('/')
-    if (path[0] == '/') {
-      pathList[0] = '/'
-    }
-    if (pathList.at(-1) == '') {
-      pathList.pop()
-    }
-
-    return pathList
-  }
-
-  cmdParse(cmd: string): string[] {
-    let args: string[] = cmd.split(/\s+/)
+  parseCmd(cmd: string): string[] {
+    let args: string[] = cmd.trim().split(/\s+/)
     return args
   }
 
   exec(args: string[]) {
     if (args.length == 0) {
+      return true
+    }
+    if (args.length == 1 && args[0] == '') {
       return true
     }
     else if (this.cmdset[args[0]]) {
@@ -176,10 +172,13 @@ export class Shell {
     this.terminal.history.appendPassage(errorText)
   }
 
-  registerHotkey(name: string, func: (event: KeyboardEvent) => void, ctrl=false, alt=false) {
+  registerHotkey(name: string, fn: (event: KeyboardEvent) => void, ctrl=false, alt=false) {
     if (ctrl)
-      this.hotkeySet['ctrl+'][name] = func;
+      this.hotkeySet['ctrl+'][name] = fn
     else if (alt)
-      this.hotkeySet['alt+'][name] = func;
+      this.hotkeySet['alt+'][name] = fn
+    else {
+      this.hotkeySet['+'][name] = fn
+    }
   }
 }

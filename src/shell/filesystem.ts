@@ -29,6 +29,7 @@ export interface ExecutableFile extends File {
 export class FileSystem {
   image: File
   path: Path
+  private exePath: Path
 
   constructor(image?: File) {
     this.image = {
@@ -36,72 +37,124 @@ export class FileSystem {
       type: FileType.dir,
       body: [
         {
-          name: 'bin',
+          name: 'usr',
           type: FileType.dir,
-          body: []
+          body: [
+            {
+              name: 'bin',
+              type: FileType.dir,
+              body: []
+            },
+            {
+              name: 'local',
+              type: FileType.dir,
+              body: [
+                {
+                  name: 'bin',
+                  type: FileType.dir,
+                  body: []
+                }
+              ]
+            }
+          ]
         }
       ]
     }
 
     this.path = [<Directory>this.image]
+    this.exePath = [
+      <Directory>this.parsePath('/usr/bin')?.at(-1),
+      <Directory>this.parsePath('/usr/local/bin')?.at(-1)
+    ]
   }
 
-  appendImage(image: File) {
-    (<DirBody>this.image.body).push(image)
+  execute(exe: ExecutableFile): boolean {
+    return Function(exe.body)()
   }
 
-  // execute(exe: ExecutableFile): boolean {
-  //   return Function(exe.body)()
-  // }
+  getFile(name: string, directory: Directory = this.getWorkingDirectory()): File | undefined {
+    for (let file of directory.body) {
+      if (file.name == name) {
+        return file
+      }
+    }
+  }
 
-  // getExecutableFile() {
+  getExecutableFile(): ExecutableFile[] {
+    let exeFiles: ExecutableFile[] = []
 
-  // }
+    for (let exeDirectory of this.exePath) {
+      for (let file of (<Directory>exeDirectory).body) {
+        if (file.type == FileType.exe) {
+          exeFiles.push(<ExecutableFile>file)
+        }
+      }
+    }
+
+    return exeFiles
+  }
 
   parsePath(pathString: string): Path | undefined {
-    if (pathString.length == 0) return
-
-    let pathStringList: string[] = pathString.split('/')
+    let pathStringList: string[] =
+      pathString == '/' ? ['/'] : pathString.split('/')
     let virtualPath: Path = <Path>this.path.slice()
     let file: File | undefined
 
+    if (pathString.length == 0) {
+      return virtualPath
+    }
     if (pathString[0] == '/') {
       pathStringList[0] = '/'
     }
-    if (pathStringList.at(-1) == '') {
-      pathStringList.pop()
-    }
 
-    for (let name of pathStringList.slice(0, -1)) {
-      if (name == '.') {
+    for (let i = 0; i < pathStringList.length; i++) {
+      let fileName = pathStringList[i]
+
+      if (fileName == '.') {
         continue
       }
-      else if (name == '..') {
+      else if (fileName == '..') {
         this.cdParentDir(virtualPath)
       }
-      else if (name == this.image.name) {
+      else if (fileName == this.image.name) {
         this.cdRoot(virtualPath)
       }
-      else if (this.cdChildDir(name, virtualPath) == false) {
+      else if (i != pathStringList.length - 1 &&
+        this.cdChildDir(fileName, virtualPath) == false)
+      {
         return
       }
-    }
-
-    file = this.getFile(pathStringList.at(-1)!, <Directory>virtualPath.at(-1))
-    if (file == undefined) {
-      return
-    } else {
-      virtualPath.push(file)
+      else if (i == pathStringList.length - 1) {
+        file = this.getFile(pathStringList[i], <Directory>virtualPath.at(-1))
+        if (file == undefined) {
+          return
+        } else {
+          virtualPath.push(file)
+        }
+      }
     }
 
     return virtualPath
   }
 
   completePath(pathString: string): string {
-    let dirPathString: string = pathString.slice(0, pathString.lastIndexOf('/'))
-    let fileString: string = pathString.slice(pathString.lastIndexOf('/') + 1)
-    let virtualPath = this.parsePath(dirPathString)
+    let lastIndexOfSlash = pathString.lastIndexOf('/')
+    let dirPathString: string
+    let fileString: string
 
+    if (lastIndexOfSlash == -1) {
+      dirPathString = ''
+      fileString = pathString.slice()
+    }
+    else {
+      dirPathString = pathString.slice(0, lastIndexOfSlash)
+      if (dirPathString == '') {
+        dirPathString = '/'
+      }
+      fileString = pathString.slice(lastIndexOfSlash + 1)
+    }
+
+    let virtualPath = this.parsePath(dirPathString)
     if (virtualPath != undefined) {
       for (let file of (<Directory>virtualPath.at(-1)).body) {
         if (file.name.length > fileString.length &&
@@ -131,16 +184,13 @@ export class FileSystem {
     return <Directory>path.at(-1)!
   }
 
-  getFile(name: string, directory: Directory = this.getWorkingDirectory()): File | undefined {
-    for (let file of directory.body) {
-      if (file.name == name) {
-        return file
-      }
+  append(file: File): boolean {
+    if (file.name == '' || file.name == '/') {
+      return false
     }
-  }
 
-  append(file: File) {
     this.getWorkingDirectory().body.push(file)
+    return true
   }
 
   delete(name: string, isDir: boolean = false): boolean {
@@ -174,7 +224,7 @@ export class FileSystem {
   }
 
   cdChildDir(name: string, path: Path = this.path): boolean {
-    let files: File[] = this.getWorkingDirectory().body
+    let files: File[] = (<Directory>path.at(-1))!.body
 
     for (let file of files) {
       if (file.type == FileType.dir && file.name == name) {
