@@ -7,13 +7,23 @@ import json from '@rollup/plugin-json'
 
 export default [
   {
-    input: 'src/demo.ts',
+    input: 'src/xdsh.ts',
     output: [
       {
-        dir: 'demo/assets',
+        dir: 'dist',
+        format: 'cjs',
+        entryFileNames: '[name].cjs.js',
+      },
+      {
+        dir: 'dist',
         format: 'umd',
         entryFileNames: '[name].umd.js',
-      }
+      },
+      {
+        dir: 'dist',
+        format: 'esm',
+        entryFileNames: '[name].esm.js',
+      },
     ],
     plugins: [
       nodeResolve(),

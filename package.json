@@ -4,8 +4,9 @@
   "description": "A shell simulator running on website",
   "main": "index.js",
   "scripts": {
-    "dev": "rollup -cw --bundleConfigAsCjs",
-    "build": "rollup -c rollup.config.build.js --bundleConfigAsCjs"
+    "dev": "rollup -w -c rollup.config.dev.js --bundleConfigAsCjs",
+    "build": "rollup -c rollup.config.build.js --bundleConfigAsCjs",
+    "deploy": "rollup -c rollup.config.deploy.js --bundleConfigAsCjs"
   },
   "repository": {
     "type": "git",
@@ -29,6 +30,7 @@
     "cz-conventional-changelog": "^3.3.0",
     "rollup": "^3.17.3",
     "rollup-plugin-copy": "^3.4.0",
+    "rollup-plugin-generate-html-template": "^1.7.0",
     "rollup-plugin-livereload": "^2.0.5",
     "rollup-plugin-serve": "^2.0.2",
     "typescript": "^4.9.5"

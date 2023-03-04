@@ -6,30 +6,13 @@ import serve from 'rollup-plugin-serve'
 import livereload from 'rollup-plugin-livereload'
 import copy from 'rollup-plugin-copy'
 import json from '@rollup/plugin-json'
+import htmlTemplate from 'rollup-plugin-generate-html-template'
 
 // solution to failure of rollup watch: https://github.com/rollup/rollup/issues/1828#issuecomment-675629244
 export default [
   {
-    input: [
-      // 'src/xdsh.ts',
-      'src/demo.ts'
-    ],
+    input: 'src/demo.ts',
     output: [
-      {
-        dir: 'dist',
-        format: 'cjs',
-        entryFileNames: '[name].cjs.js',
-      },
-      {
-        dir: 'dist',
-        format: 'umd',
-        entryFileNames: '[name].umd.js',
-      },
-      {
-        dir: 'dist',
-        format: 'esm',
-        entryFileNames: '[name].esm.js',
-      },
       {
         dir: 'demo/assets',
         format: 'umd',
@@ -56,7 +39,14 @@ export default [
         ]
       }),
       // https://github.com/microsoft/TypeScript/issues/25400#issuecomment-580720429
-      json()
+      json(),
+      htmlTemplate({
+        template: 'public/template.html',
+        target: 'demo/index.html',
+        replaceVars: {
+          'css_url': 'assets/xdsh.css',
+        }
+      }),
     ],
   }
 ]
