@@ -1,5 +1,5 @@
 import { Text, File, Path, FileSystem } from './filesystem'
-import { Terminal } from '../terminal/terminal'
+import { TerminalCli } from '../terminal/terminalcli'
 
 interface Command {
   name: string
@@ -38,15 +38,15 @@ interface ShellConfig {
 }
 
 export class Shell {
-  terminal: Terminal
+  cli: TerminalCli
   fs: FileSystem
   cmdset: CommandSet
   hotkeySet: HotkeySet
   errorMsgSet: ErrorMsgSet
   config: ShellConfig
 
-  constructor(terminal: Terminal) {
-    this.terminal = terminal
+  constructor(cli: TerminalCli) {
+    this.cli = cli
     this.fs = new FileSystem()
     this.cmdset = {}
     this.hotkeySet = {
@@ -70,6 +70,9 @@ export class Shell {
   }
 
   init(image?: File) {
+    // set command line interface
+    // this.cli = cli
+
     // set image
     if (image) {
       this.fs.setImage(image)
@@ -79,52 +82,57 @@ export class Shell {
     this.initConfig()
 
     // auto-complete
-    this.terminal.cmdline.command.addEventListener('input', () => {
-      this.terminal.cmdline.autoComplete.innerHTML = this.getAutoComplete()
+    this.cli.cmdline.command.addEventListener('input', () => {
+      this.cli.cmdline.autoComplete.innerHTML = this.getAutoComplete()
     })
 
     // hotkeySet
     this.registerHotkey('Enter', (event)=>{
       event.preventDefault()
 
-      let line = this.terminal.cmdline.getLine()
-      let cmd = this.terminal.cmdline.getCommad()
+      let line = this.cli.cmdline.getLine()
+      let cmd = this.cli.cmdline.getCommad()
       let args = this.parseCmd(cmd)
 
-      this.terminal.history.appendElement(line)
+      this.cli.history.appendElement(line)
       this.exec(args)
 
-      this.terminal.cmdline.clear()
-      this.terminal.cmdline.setTime()
+      this.cli.cmdline.clear()
+      this.cli.cmdline.setTime()
     });
 
     this.registerHotkey('Tab', (event)=>{
       event.preventDefault()
 
-      if (this.terminal.cmdline.autoComplete.innerHTML) {
-        this.terminal.cmdline.setCommand(
-          this.terminal.cmdline.getCommad() +
+      if (this.cli.cmdline.autoComplete.innerHTML) {
+        this.cli.cmdline.setCommand(
+          this.cli.cmdline.getCommad() +
           this.getAutoComplete()
         )
-        this.terminal.cmdline.autoComplete.innerHTML = ''
-        this.terminal.cmdline.focus()
+        this.cli.cmdline.autoComplete.innerHTML = ''
+        this.cli.cmdline.focus()
       }
     })
 
     this.registerHotkey('l', (event)=>{
       event.preventDefault()
 
-      this.terminal.history.clear()
-      this.terminal.cmdline.clear()
+      this.cli.history.clear()
+      this.cli.cmdline.clear()
     }, true)
 
     this.registerHotkey('u', (event)=>{
       event.preventDefault()
 
-      this.terminal.cmdline.clear()
+      this.cli.cmdline.clear()
     }, true)
 
     document.addEventListener('keydown', (event) => {
+      // TODO : may be better?
+      if (this.cli.cmdline.command != document.activeElement) {
+        return
+      }
+
       let keyName: string = event.key
 
       if (event.ctrlKey) {
@@ -163,7 +171,7 @@ export class Shell {
     let wdp = this.fs.getWorkingDirectoryPath().slice()
     let wdpNumber = this.config.pathNumber > wdp.length ? 0 : wdp.length - this.config.pathNumber
 
-    this.terminal.cmdline.setPrompt(
+    this.cli.cmdline.setPrompt(
       `${this.config.user} ` +
       `<span style="color:#2d9bf2">
         ${this.fs.parsePathToString(<Path>wdp.slice(wdpNumber))}
@@ -175,7 +183,7 @@ export class Shell {
   }
 
   getAutoComplete(): string {
-    let args: string[] = this.parseCmd(this.terminal.cmdline.getCommad())
+    let args: string[] = this.parseCmd(this.cli.cmdline.getCommad())
 
     if (args.length == 1) {
       for (let cmd in this.cmdset) {
@@ -219,7 +227,7 @@ export class Shell {
   }
 
   setErrorMsg(errorText: string) {
-    this.terminal.history.appendPassage(errorText)
+    this.cli.history.appendPassage(errorText)
   }
 
   registerHotkey(name: string, fn: (event: KeyboardEvent) => void, ctrl=false, alt=false) {

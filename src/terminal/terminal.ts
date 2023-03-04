@@ -1,111 +1,50 @@
+import { TerminalCli } from "./terminalcli"
+import { Xdsh } from "../shell/xdsh"
+import { File } from "../shell/filesystem"
+
 export class Terminal {
-  cli: HTMLDivElement[]
-  history: TerminalHistory
-  cmdline: TerminalCommandLine
+  terminal: HTMLDivElement
+  image: File
+  static cliCount: number = 0
 
-  constructor(terminal: HTMLDivElement) {
-    this.cli = [<HTMLDivElement>terminal.getElementsByClassName('xdsh-cli')[0]]
-    this.history = new TerminalHistory(
-      <HTMLDivElement>this.cli[0].getElementsByClassName('xdsh-history')[0]
-    )
-    this.cmdline = new TerminalCommandLine(
-      <HTMLDivElement>this.cli[0].getElementsByClassName('xdsh-cmdline')[0]
-    )
-  }
-}
-
-class TerminalHistory {
-  history: HTMLDivElement
-
-  constructor(history: HTMLDivElement) {
-    this.history = history
+  constructor(terminal: HTMLDivElement, image: File) {
+    this.terminal = terminal
+    this.image = image
   }
 
-  appendElement(record: Element) {
-    this.history.append(record)
+  appendCli() {
+    let cli = Terminal.newCli()
+    this.terminal.appendChild(cli);
+    (new Xdsh(new TerminalCli(cli))).init(this.image)
   }
 
-  appendSentence(text: string) {
-    this.history.append(text)
-    this.history.append(document.createElement('br'))
+  appendDivider() {
+    this.terminal.appendChild(document.createElement('hr'))
   }
 
-  appendPassage(text: string) {
-    let lines = text.split('\n')
-    for (let line of lines) {
-      this.appendSentence(line)
-    }
+  appendChild(element: HTMLElement) {
+    this.terminal.appendChild(element)
   }
 
-  clear() {
-    this.history.innerHTML = ''
-  }
-}
-
-class TerminalCommandLine {
-  cmdline: HTMLDivElement
-  prompt: HTMLSpanElement
-  command: HTMLSpanElement
-  autoComplete: HTMLSpanElement
-  time: HTMLSpanElement
-
-  constructor(cmdline: HTMLDivElement) {
-    this.cmdline = cmdline
-    this.prompt = <HTMLSpanElement>cmdline.getElementsByClassName('xdsh-cmdline__prompt')[0]
-    this.command = <HTMLSpanElement>cmdline.getElementsByClassName('xdsh-cmdline__command')[0]
-    this.autoComplete = <HTMLSpanElement>cmdline.getElementsByClassName('xdsh-cmdline__auto-complete')[0]
-    this.time = <HTMLSpanElement>cmdline.getElementsByClassName('xdsh-cmdline__time')[0]
-
-    this.command.addEventListener('keypress', (event: KeyboardEvent) => {
-      if (event.key === "Enter") {
-        event.preventDefault();
-      }
-    });
-    this.autoComplete.onclick = () => {
-      this.focus()
-    }
-    this.setTime()
+  static newTerminal() {
+    let terminal = document.createElement('div')
+    terminal.className = 'xdsh-terminal'
+    return terminal
   }
 
-  focus() {
-    let sel: Selection | null = window.getSelection();
-
-    this.command.focus();
-    if (sel) {
-      sel.selectAllChildren(this.command);
-      sel.collapseToEnd();
-    }
-  }
-
-  getLine(): HTMLDivElement {
-    return this.cmdline.cloneNode(true) as HTMLDivElement
-  }
-
-  getPrompt(): string {
-    return this.prompt.innerText
-  }
-
-  setPrompt(text: string) {
-    this.prompt.innerHTML = text
-  }
-
-  getCommad(): string {
-    return this.command.innerText
-  }
-
-  setCommand(cmd: string) {
-    this.command.innerHTML = cmd
-  }
-
-  setTime() {
-    let date = new Date()
-    this.time.innerHTML = (new Date(
-      date.getTime() - date.getTimezoneOffset() * 60000
-    )).toISOString().slice(11, 19).replace(/-/g, "/")
-  }
-
-  clear() {
-    this.command.innerHTML = ''
-    this.autoComplete.innerHTML = ''
+  // more infomation: https://grrr.tech/posts/create-dom-node-from-html-string/
+  static newCli(): HTMLDivElement {
+    let cli = document.createElement('div')
+    cli.className = 'xdsh-cli'
+    cli.setAttribute('ID-cli', (Terminal.cliCount++).toString())
+    cli.innerHTML = `
+      <div class="xdsh-history"></div>
+      <div class="xdsh-cmdline">
+        <span class="xdsh-cmdline__prompt"></span>
+        <span class="xdsh-cmdline__command" contenteditable tabindex="1"></span>
+        <span class="xdsh-cmdline__auto-complete"></span>
+        <span class="xdsh-cmdline__time"></span>
+      </div>`
+    return cli
   }
 }

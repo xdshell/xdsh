@@ -30,7 +30,7 @@ export default [
         openPage: "/demo/index.html",
         contentBase: 'demo',
       }),
-      livereload('dist'),
+      livereload('demo'),
       copy({
         targets: [
           { src: 'src/xdsh.css', dest: 'dist' },

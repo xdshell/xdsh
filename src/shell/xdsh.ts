@@ -1,10 +1,10 @@
-import { Shell } from "./shell/shell"
-import { Terminal } from "./terminal/terminal"
-import { File, FileType, DirBody } from "./shell/filesystem"
+import { Shell } from "./shell"
+import { TerminalCli } from "../terminal/terminalcli"
+import { File, FileType, DirBody } from "./filesystem"
 
 export class Xdsh extends Shell {
-  constructor(terminal: Terminal) {
-    super(terminal)
+  constructor(cli: TerminalCli) {
+    super(cli)
   }
 
   init(image?: File) {
@@ -20,13 +20,13 @@ export class Xdsh extends Shell {
       exec: (args: string[]): boolean => {
         if (args.length == 1) {
           if (this.cmdset[args[0]]) {
-            this.terminal.history.appendPassage(this.cmdset[args[0]].manual)
+            this.cli.history.appendPassage(this.cmdset[args[0]].manual)
             return true
           }
         }
 
         if (this.cmdset[args[1]]) {
-          this.terminal.history.appendPassage(this.cmdset[args[1]].manual)
+          this.cli.history.appendPassage(this.cmdset[args[1]].manual)
           return true
         }
 
@@ -85,7 +85,7 @@ export class Xdsh extends Shell {
           lsDiv.innerHTML = <string>files.name
         }
 
-        this.terminal.history.appendElement(lsDiv)
+        this.cli.history.appendElement(lsDiv)
         return true
       }
     }
@@ -119,7 +119,7 @@ export class Xdsh extends Shell {
       name: 'pwd',
       manual: '',
       exec: (args: string[]): boolean => {
-        this.terminal.history.appendSentence(
+        this.cli.history.appendSentence(
           this.fs.parsePathToString(
             this.fs.getWorkingDirectoryPath()
           )
@@ -139,7 +139,7 @@ export class Xdsh extends Shell {
         if (virtualPath) {
           let file = virtualPath.at(-1)!
           if (file.type != FileType.dir) {
-            this.terminal.history.appendPassage(<string>file.body)
+            this.cli.history.appendPassage(<string>file.body)
             return true
           }
         }
@@ -212,8 +212,8 @@ export class Xdsh extends Shell {
       name: 'clear',
       manual: '',
       exec: (args: string[]): boolean => {
-        this.terminal.history.clear()
-        this.terminal.cmdline.clear()
+        this.cli.history.clear()
+        this.cli.cmdline.clear()
         return true
       }
     }
@@ -234,10 +234,10 @@ export class Xdsh extends Shell {
                 if (reader.result) {
                   let img = JSON.parse(reader.result.toString())
                   this.fs.setImage(img)
-                  this.terminal.history.appendSentence('Load successfully')
+                  this.cli.history.appendSentence('Load successfully')
                 }
               } catch(err){
-                this.terminal.history.appendSentence('Load failed')
+                this.cli.history.appendSentence('Load failed')
                 console.error(err)
               }
             }
