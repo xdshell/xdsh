@@ -6,29 +6,29 @@
   font-family: Cutive Mono, monospace, sans-serif;
 }
 
-.xdsh-cli {
+.xdsh-cmdline {
   display: flex;
 }
 
-.xdsh-cli__prompt {
+.xdsh-cmdline__prompt {
   flex: 0 1 auto;
 }
 
-.xdsh-cli__command {
+.xdsh-cmdline__command {
   min-width: 1px;
   flex: 0 1 auto;
 }
 
-.xdsh-cli__command:focus {
+.xdsh-cmdline__command:focus {
   outline: none;
 }
 
-.xdsh-cli__auto-complete {
+.xdsh-cmdline__auto-complete {
   color: #cfcfcf;
   flex: 1 1 auto;
 }
 
-.xdsh-cli__time {
+.xdsh-cmdline__time {
   flex: 0 1 auto;
   margin-left: auto;
 }

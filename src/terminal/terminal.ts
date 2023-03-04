@@ -1,13 +1,15 @@
 export class Terminal {
+  cli: HTMLDivElement[]
   history: TerminalHistory
   cmdline: TerminalCommandLine
 
-  constructor(cli: HTMLDivElement) {
+  constructor(terminal: HTMLDivElement) {
+    this.cli = [<HTMLDivElement>terminal.getElementsByClassName('xdsh-cli')[0]]
     this.history = new TerminalHistory(
-      <HTMLDivElement>cli.getElementsByClassName('xdsh-history')[0]
+      <HTMLDivElement>this.cli[0].getElementsByClassName('xdsh-history')[0]
     )
     this.cmdline = new TerminalCommandLine(
-      <HTMLDivElement>cli.getElementsByClassName('xdsh-cli')[0]
+      <HTMLDivElement>this.cli[0].getElementsByClassName('xdsh-cmdline')[0]
     )
   }
 }
@@ -41,18 +43,18 @@ class TerminalHistory {
 }
 
 class TerminalCommandLine {
-  cli: HTMLDivElement
+  cmdline: HTMLDivElement
   prompt: HTMLSpanElement
   command: HTMLSpanElement
   autoComplete: HTMLSpanElement
   time: HTMLSpanElement
 
-  constructor(cli: HTMLDivElement) {
-    this.cli = cli
-    this.prompt = <HTMLSpanElement>cli.getElementsByClassName('xdsh-cli__prompt')[0]
-    this.command = <HTMLSpanElement>cli.getElementsByClassName('xdsh-cli__command')[0]
-    this.autoComplete = <HTMLSpanElement>cli.getElementsByClassName('xdsh-cli__auto-complete')[0]
-    this.time = <HTMLSpanElement>cli.getElementsByClassName('xdsh-cli__time')[0]
+  constructor(cmdline: HTMLDivElement) {
+    this.cmdline = cmdline
+    this.prompt = <HTMLSpanElement>cmdline.getElementsByClassName('xdsh-cmdline__prompt')[0]
+    this.command = <HTMLSpanElement>cmdline.getElementsByClassName('xdsh-cmdline__command')[0]
+    this.autoComplete = <HTMLSpanElement>cmdline.getElementsByClassName('xdsh-cmdline__auto-complete')[0]
+    this.time = <HTMLSpanElement>cmdline.getElementsByClassName('xdsh-cmdline__time')[0]
 
     this.command.addEventListener('keypress', (event: KeyboardEvent) => {
       if (event.key === "Enter") {
@@ -76,7 +78,7 @@ class TerminalCommandLine {
   }
 
   getLine(): HTMLDivElement {
-    return this.cli.cloneNode(true) as HTMLDivElement
+    return this.cmdline.cloneNode(true) as HTMLDivElement
   }
 
   getPrompt(): string {

@@ -2,6 +2,10 @@
 
 A shell simulator running on website.
 
-## Online
+## Demo
 
 https://xdshell.github.io/xdsh/
+
+## Docs
+
+https://xdshell.github.io/docs/
