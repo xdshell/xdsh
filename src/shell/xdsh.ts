@@ -16,7 +16,7 @@ export class Xdsh extends Shell {
   initCommand() {
     this.cmdset['help'] = {
       name: 'help',
-      manual: '',
+      manual: 'Help you get familiar with xdsh command.',
       exec: (args: string[]): boolean => {
         if (args.length == 1) {
           if (this.cmdset[args[0]]) {
@@ -35,7 +35,7 @@ export class Xdsh extends Shell {
     }
     this.cmdset['ls'] = {
       name: 'ls',
-      manual: '',
+      manual: 'List files in working directory.',
       exec: (args: string[]): boolean => {
         let files: File = this.fs.getWorkingDirectory()
         let getlsitem = (tagName: string, text: string, className: string): HTMLElement => {
@@ -91,7 +91,7 @@ export class Xdsh extends Shell {
     }
     this.cmdset['cd'] = {
       name: 'cd',
-      manual: '',
+      manual: 'Change directory.',
       exec: (args: string[]): boolean => {
         if (args.length == 1) {
           this.fs.cdRoot(this.fs.path)
@@ -109,7 +109,7 @@ export class Xdsh extends Shell {
     }
     this.cmdset['rm'] = {
       name: 'rm',
-      manual: '',
+      manual: `Remove file one at a time. Usage: rm [File] || rm [Dir] -r`,
       exec: (args: string[]): boolean => {
         this.fs.delete(args[1], args[2] == '-r')
         return true;
@@ -117,7 +117,7 @@ export class Xdsh extends Shell {
     }
     this.cmdset['pwd'] = {
       name: 'pwd',
-      manual: '',
+      manual: 'Print working directory.',
       exec: (args: string[]): boolean => {
         this.cli.history.appendSentence(
           this.fs.parsePathToString(
@@ -129,7 +129,7 @@ export class Xdsh extends Shell {
     }
     this.cmdset['cat'] = {
       name: 'cat',
-      manual: '',
+      manual: 'Show file content.',
       exec: (args: string[]): boolean => {
         if (args.length <= 1)
           return false
@@ -149,10 +149,19 @@ export class Xdsh extends Shell {
     }
     this.cmdset['mkdir'] = {
       name: 'mkdir',
-      manual: '',
+      manual: 'Make directory.',
       exec: (args: string[]): boolean => {
         if (args.length <= 1) {
           return false
+        }
+
+        let files = this.fs.getWorkingDirectory().body
+        for (let file of files) {
+          if (file.type == FileType.dir &&
+            file.name == args[1])
+          {
+            return false
+          }
         }
 
         return this.fs.append({
@@ -164,7 +173,7 @@ export class Xdsh extends Shell {
     }
     this.cmdset['touch'] = {
       name: 'touch',
-      manual: '',
+      manual: 'Make a file. Usage: touch [FileName] [text|link|exe] [content]',
       exec: (args: string[]): boolean => {
         if (args.length <= 1) {
           return false
@@ -190,7 +199,7 @@ export class Xdsh extends Shell {
     }
     this.cmdset['vim'] = {
       name: 'vim',
-      manual: '',
+      manual: 'Edit file content. Usage: vim [File] [content]',
       exec: (args: string[]): boolean => {
         if (args.length <= 2) {
           return false
@@ -210,7 +219,7 @@ export class Xdsh extends Shell {
     }
     this.cmdset['clear'] = {
       name: 'clear',
-      manual: '',
+      manual: 'Clear.',
       exec: (args: string[]): boolean => {
         this.cli.history.clear()
         this.cli.cmdline.clear()
@@ -219,7 +228,7 @@ export class Xdsh extends Shell {
     }
     this.cmdset['import'] = {
       name: 'pwd',
-      manual: '',
+      manual: 'Import image file. See more docs in docs.',
       exec: (args: string[]): boolean => {
         const fileSelector: HTMLInputElement = document.createElement('input')
         fileSelector.setAttribute('type', 'file')
@@ -250,7 +259,7 @@ export class Xdsh extends Shell {
     }
     this.cmdset['export'] = {
       name: 'export',
-      manual: '',
+      manual: 'Export image file. See more docs in docs.',
       exec: (args: string[]): boolean => {
         // https://stackoverflow.com/questions/19721439/download-json-object-as-a-file-from-browser
         let dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(this.fs.image))
