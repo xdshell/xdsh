@@ -186,6 +186,9 @@ export class Shell {
     let args: string[] = this.parseCmd(this.cli.cmdline.getCommad())
 
     if (args.length == 1) {
+      if (args[0].length == 0) {
+        return ''
+      }
       for (let cmd in this.cmdset) {
         if (cmd.length > args[0].length &&
           cmd.slice(0, args[0].length) == args[0])
@@ -196,6 +199,9 @@ export class Shell {
       }
     }
     else if (args.length > 1) {
+      if (args.at(-1)!.length == 0) {
+        return ''
+      }
       return this.fs.completePath(args.at(-1)!)
     }
 
