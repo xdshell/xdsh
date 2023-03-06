@@ -19,9 +19,36 @@
       ]
     },
     {
+      "name": "xdsh",
+      "type": 0,
+      "body": [
+        {
+          "name": "docs",
+          "type": 2,
+          "body": "https://github.com/xdshell/docs"
+        },
+        {
+          "name": "xdsh",
+          "type": 2,
+          "body": "https://github.com/xdshell/xdsh"
+        }
+      ]
+    },
+    {
       "name": "insorker",
       "type": 0,
-      "body": []
+      "body": [
+        {
+          "name": "bilibili",
+          "type": 2,
+          "body": "https://space.bilibili.com/434618849/"
+        },
+        {
+          "name": "github",
+          "type": 2,
+          "body": "https://github.com/xdshell"
+        }
+      ]
     }
   ]
 }

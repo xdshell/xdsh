@@ -33,8 +33,9 @@ export default [
       livereload('demo'),
       copy({
         targets: [
-          { src: 'src/xdsh.css', dest: 'dist' },
+          // { src: 'src/xdsh.css', dest: 'dist' },
           { src: 'src/xdsh.css', dest: 'demo/assets' },
+          { src: 'src/favicon.ico', dest: 'demo/assets' },
           { src: 'public/index.html', dest: 'demo' }
         ]
       }),
@@ -44,6 +45,7 @@ export default [
         template: 'public/template.html',
         target: 'demo/index.html',
         replaceVars: {
+          'icon_url': 'assets/favicon.ico',
           'css_url': 'assets/xdsh.css',
         }
       }),

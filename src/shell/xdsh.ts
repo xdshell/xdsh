@@ -34,6 +34,16 @@ export class Xdsh extends Shell {
         return false
       }
     }
+    this.cmdset['cmd'] = {
+      name: 'cmd',
+      manual: 'List all of the commands.',
+      exec: (args: string[]): boolean => {
+        for (let key in this.cmdset) {
+          this.cli.history.appendSentence(key)
+        }
+        return true
+      }
+    }
     this.cmdset['ls'] = {
       name: 'ls',
       manual: 'List files in working directory.',
@@ -275,7 +285,7 @@ export class Xdsh extends Shell {
     }
     this.cmdset['split'] = {
       name: 'split',
-      manual: '',
+      manual: 'Split window. Usage: split [a | d | w | s]. If you have ever played 4399, you know how to do it.\nAlso if you are a vimer... There\'s no need to say.',
       exec: (args: string[]): boolean => {
         if (args.length == 1) {
           return false
