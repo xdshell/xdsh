@@ -1,9 +1,33 @@
 .xdsh-terminal {
   cursor: text;
+  /* height: 100%; */
+  /* display: flex; */
   font-size: 18px;
   font-weight: 800;
   color: #6c6c6c;
   font-family: Cutive Mono, monospace, sans-serif;
+}
+
+.xdsh-split__row {
+  display: flex;
+  flex-direction: row;
+}
+
+.xdsh-split__column {
+  display: flex;
+  flex-direction: column;
+}
+
+.xdsh-divider {
+  flex: 0 0 auto;
+  /* https://stackoverflow.com/questions/34365271/hr-inside-container-with-display-flex-become-corrupted */
+  color: red;
+  margin-left: 0;
+  margin-right: 0;
+}
+
+.xdsh-cli {
+  flex: 1 0 auto;
 }
 
 .xdsh-cmdline {

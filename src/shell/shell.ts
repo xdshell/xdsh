@@ -34,7 +34,7 @@ interface ShellConfig {
   user: string
   version: string
   hostname: string
-  pathNumber: number
+  dirLength: number
 }
 
 export class Shell {
@@ -65,7 +65,7 @@ export class Shell {
       user: 'root',
       version: '0.0.0',
       hostname: 'shell',
-      pathNumber: 2
+      dirLength: 2
     }
   }
 
@@ -75,7 +75,7 @@ export class Shell {
 
     // set image
     if (image) {
-      this.fs.setImage(image)
+      this.setImage(image)
     }
 
     // init config
@@ -169,7 +169,7 @@ export class Shell {
 
   setPrompt() {
     let wdp = this.fs.getWorkingDirectoryPath().slice()
-    let wdpNumber = this.config.pathNumber > wdp.length ? 0 : wdp.length - this.config.pathNumber
+    let wdpNumber = this.config.dirLength > wdp.length ? 0 : wdp.length - this.config.dirLength
 
     this.cli.cmdline.setPrompt(
       `${this.config.user} ` +
@@ -180,6 +180,14 @@ export class Shell {
          >&nbsp
       </span>`
     )
+  }
+
+  setImage(image: File) {
+    this.fs.setImage(image)
+  }
+
+  getImage() {
+    return this.fs.image
   }
 
   getAutoComplete(): string {

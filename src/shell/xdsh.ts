@@ -1,4 +1,5 @@
 import { Shell } from "./shell"
+import { Terminal } from "../terminal/terminal"
 import { TerminalCli } from "../terminal/terminalcli"
 import { File, FileType, DirBody } from "./filesystem"
 
@@ -272,6 +273,33 @@ export class Xdsh extends Shell {
         return true;
       }
     }
+    this.cmdset['split'] = {
+      name: 'split',
+      manual: '',
+      exec: (args: string[]): boolean => {
+        if (args.length == 1) {
+          return false
+        }
+        console.log(args[1])
+
+        if (args[1] == 'a' || args[1] == 'h') {
+          Terminal.newSplitRowLeft(this)
+        }
+        else if (args[1] == 'd' || args[1] == 'l') {
+          Terminal.newSplitRowRight(this)
+        }
+        else if (args[1] == 'w' || args[1] == 'k') {
+          Terminal.newSplitColumnUp(this)
+        }
+        else if (args[1] == 's' || args[1] == 'j') {
+          Terminal.newSplitColumnDown(this)
+        }
+        
+        return true
+      }
+    }
+
+    // TODO
     this.cmdset['lisp'] = {
       name: 'lisp',
       manual: 'Building...',

@@ -6,5 +6,3 @@ let xdshTerminal = new Terminal(
   image
 )
 xdshTerminal.appendCli()
-xdshTerminal.appendDivider()
-xdshTerminal.appendCli()
