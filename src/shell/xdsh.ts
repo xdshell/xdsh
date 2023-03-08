@@ -71,6 +71,36 @@ export class Xdsh extends Shell {
 
       this.cli.cmdline.clear()
     }, true)
+
+    this.registerHotkey('d', (event)=>{
+      event.preventDefault()
+
+      this.cmdset['exit'].exec(['exit'])
+    }, true)
+
+    this.registerHotkey('h', (event)=>{
+      event.preventDefault()
+
+      this.cmdset['split'].exec(['split', 'h'])
+    }, false, true)
+
+    this.registerHotkey('j', (event)=>{
+      event.preventDefault()
+
+      this.cmdset['split'].exec(['split', 'j'])
+    }, false, true)
+
+    this.registerHotkey('k', (event)=>{
+      event.preventDefault()
+
+      this.cmdset['split'].exec(['split', 'k'])
+    }, false, true)
+
+    this.registerHotkey('l', (event)=>{
+      event.preventDefault()
+
+      this.cmdset['split'].exec(['split', 'l'])
+    }, false, true)
   }
 
   private initCommand() {
@@ -384,6 +414,24 @@ export class Xdsh extends Shell {
           vlayout.appendChild(cli)
         }
         
+        return true
+      }
+    }
+    this.cmdset['exit'] = {
+      name: 'exit',
+      manual: 'Close shell.',
+      exec: (args: string[]): boolean => {
+        let parentNode = this.cli.self.parentNode!
+
+        if (parentNode.childNodes.length >= 3) {
+          parentNode.removeChild(parentNode.childNodes[1])
+          parentNode.removeChild(this.cli.self)
+          parentNode.parentNode?.replaceChild(parentNode.childNodes[0], parentNode)
+        }
+        else {
+          parentNode.removeChild(this.cli.self)
+        }
+
         return true
       }
     }
