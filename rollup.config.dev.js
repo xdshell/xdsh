@@ -35,14 +35,13 @@ export default [
         targets: [
           // { src: 'src/xdsh.css', dest: 'dist' },
           { src: 'src/style/xdsh.css', dest: 'demo/assets' },
-          { src: 'src/favicon.ico', dest: 'demo/assets' },
-          { src: 'public/index.html', dest: 'demo' }
+          { src: 'public/favicon.ico', dest: 'demo/assets' },
         ]
       }),
       // https://github.com/microsoft/TypeScript/issues/25400#issuecomment-580720429
       json(),
       htmlTemplate({
-        template: 'public/template.html',
+        template: 'public/demo.html',
         target: 'demo/index.html',
         replaceVars: {
           'icon_url': 'assets/favicon.ico',

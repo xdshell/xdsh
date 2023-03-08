@@ -1,3 +1,15 @@
+# 0.4.0 (2023-03-06)
+
+Features
+
+- Abolish Terminal first structure. All HTMLElements are treated as components.
+- Making code more readable for future writing of doc.
+- Making api more easy to use for future bundle.
+
+Fix
+
+- BUGS in 0.3.0
+
 # 0.3.0 (2023-03-06)
 
 Features
