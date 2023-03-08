@@ -34,7 +34,7 @@ export default [
       copy({
         targets: [
           // { src: 'src/xdsh.css', dest: 'dist' },
-          { src: 'src/xdsh.css', dest: 'demo/assets' },
+          { src: 'src/style/xdsh.css', dest: 'demo/assets' },
           { src: 'src/favicon.ico', dest: 'demo/assets' },
           { src: 'public/index.html', dest: 'demo' }
         ]

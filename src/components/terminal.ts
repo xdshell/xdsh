@@ -1,6 +1,6 @@
 import { CommandLineInterface } from "./cli"
 import { Xdsh } from "../shell/xdsh"
-import { File } from "../shell/filesystem"
+import { File } from "../filesystem/filesystem"
 
 export class Terminal {
   static newTerminal(image?: File): HTMLDivElement {

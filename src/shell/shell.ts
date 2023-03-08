@@ -1,4 +1,4 @@
-import { File, Path, FileSystem } from './filesystem'
+import { File, Path, FileSystem } from '../filesystem/filesystem'
 import { CommandLineInterface } from '../components/cli'
 
 interface Command {

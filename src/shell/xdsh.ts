@@ -1,6 +1,6 @@
 import { Shell } from "./shell"
 import { Terminal } from "../components/terminal"
-import { Text, File, FileType, DirBody } from "./filesystem"
+import { Text, File, FileType, DirBody } from "../filesystem/filesystem"
 import { CommandLineInterface } from "../components/cli"
 import { HLayout, VLayout } from "../components/layout"
 import { Divider } from "../components/divider"
