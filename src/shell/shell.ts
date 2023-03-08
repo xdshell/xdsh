@@ -1,4 +1,4 @@
-import { Text, File, Path, FileSystem } from './filesystem'
+import { File, Path, FileSystem } from './filesystem'
 import { TerminalCli } from '../terminal/terminalcli'
 
 interface Command {
@@ -22,6 +22,13 @@ interface HotkeySet {
   [name: string]: Hotkey
 }
 
+interface ConfigSet {
+  user: string
+  version: string
+  hostname: string
+  wdpathLength: number
+}
+
 interface ErrorMsg {
   (...args: any[]): string
 }
@@ -30,20 +37,14 @@ interface ErrorMsgSet {
   [errorName: string]: ErrorMsg
 }
 
-interface ShellConfig {
-  user: string
-  version: string
-  hostname: string
-  dirLength: number
-}
-
 export class Shell {
   cli: TerminalCli
   fs: FileSystem
   cmdset: CommandSet
   hotkeySet: HotkeySet
+  configSet: ConfigSet
   errorMsgSet: ErrorMsgSet
-  config: ShellConfig
+  errorLogSet: string[]
 
   constructor(cli: TerminalCli) {
     this.cli = cli
@@ -54,197 +55,113 @@ export class Shell {
       'ctrl+': {},
       'alt+': {}
     }
-    this.errorMsgSet = {
-      'CommandNotFound': (cmd) => `xdsh: ${cmd}: command not found`,
-      'NoSuchFileOrDirectory': (file) => `cannot access ${file}: No such file or directory`,
-      'NotADirectory': (file) => `not a directory: ${file}`,
-      'IsADirectory': (dir) => `${dir}: Is a directory`,
-      'InvalidOption': (option) => `invalid option -- '${option}'`,
-    }
-    this.config = {
+    this.configSet = {
       user: 'root',
       version: '0.0.0',
       hostname: 'shell',
-      dirLength: 2
+      wdpathLength: 2
     }
+    this.errorMsgSet = {
+      'CommandNotFound': (cmd: string) => `xdsh: ${cmd}: command not found`,
+      'InvalidArguments': (args: string[]) => `xdsh: invalid arguments -- '${args}'`,
+    }
+    this.errorLogSet = new Array<string>()
   }
 
-  init(image?: File) {
-    // set command line interface
-    // this.cli = cli
-
-    // set image
-    if (image) {
-      this.setImage(image)
-    }
-
-    // init config
-    this.initConfig()
-
+  init() {
     // auto-complete
     this.cli.cmdline.command.addEventListener('input', () => {
-      this.cli.cmdline.autoComplete.innerHTML = this.getAutoComplete()
+      this.cli.cmdline.autoComplete.innerHTML = this.getAutoComplete(
+        this.cli.cmdline.getCommad()
+      )
     })
 
-    // hotkeySet
-    this.registerHotkey('Enter', (event)=>{
-      event.preventDefault()
-
-      let line = this.cli.cmdline.getLine()
-      let cmd = this.cli.cmdline.getCommad()
-      let args = this.parseCmd(cmd)
-
-      this.cli.history.appendElement(line)
-      this.exec(args)
-
-      this.cli.cmdline.clear()
-      this.cli.cmdline.setTime()
-    });
-
-    this.registerHotkey('Tab', (event)=>{
-      event.preventDefault()
-
-      if (this.cli.cmdline.autoComplete.innerHTML) {
-        this.cli.cmdline.setCommand(
-          this.cli.cmdline.getCommad() +
-          this.getAutoComplete()
-        )
-        this.cli.cmdline.autoComplete.innerHTML = ''
-        this.cli.cmdline.focus()
-      }
-    })
-
-    this.registerHotkey('l', (event)=>{
-      event.preventDefault()
-
-      this.cli.history.clear()
-      this.cli.cmdline.clear()
-    }, true)
-
-    this.registerHotkey('u', (event)=>{
-      event.preventDefault()
-
-      this.cli.cmdline.clear()
-    }, true)
-
-    document.addEventListener('keydown', (event) => {
-      // TODO : may be better?
-      if (this.cli.cmdline.command != document.activeElement) {
-        return
-      }
-
+    // hotkeys
+    this.cli.cmdline.command.addEventListener('keydown', (event) => {
       let keyName: string = event.key
+      let keyPressed: boolean = false
 
       if (event.ctrlKey) {
         if (this.hotkeySet['ctrl+'][keyName]) {
           this.hotkeySet['ctrl+'][keyName](event)
+          keyPressed = true
         }
       }
       else if (event.altKey) {
         if (this.hotkeySet['alt+'][keyName]) {
           this.hotkeySet['alt+'][keyName](event)
+          keyPressed = true
         }
       }
       else if (this.hotkeySet['+'][keyName]) {
         this.hotkeySet['+'][keyName](event)
+        keyPressed = true
+      }
+
+      // log errors whenever key pressed
+      if (keyPressed) {
+        if (this.errorLogSet.length) {
+          for (let errorLog of this.errorLogSet) {
+            this.cli.history.appendPassage(errorLog)
+          }
+        }
       }
     }, false)
 
     // prompt
-    this.setPrompt()
+    this.cli.cmdline.setPrompt(this.getPrompt())
   }
 
-  initConfig() {
-    try {
-      this.config = JSON.parse(
-        (<Text>this.fs.parsePath('/usr/config')!.at(-1)!).body
-      )
+  // return prompt html text
+  protected getPrompt(): string {
+    let wdpath = this.fs.getWorkingDirectoryPath().slice()
+    let wdpathLength = this.configSet.wdpathLength > wdpath.length ?
+      0 : wdpath.length - this.configSet.wdpathLength
+    let wdpathPrompt = this.fs.parsePathToString(<Path>wdpath.slice(wdpathLength))
+    if (wdpathLength > 2) {
+      wdpathPrompt = '../' + wdpathPrompt
     }
-    catch(e) {
-      console.log('/usr/config :' + e)
+    let userPrompt = this.configSet.user
+
+    return `<span class="xdsh-cmdline__prompt-user">${userPrompt}&nbsp</span>`
+      + `<span class="xdsh-cmdline__prompt-wdpath">${wdpathPrompt}&nbsp</span>`
+      + `<span class="xdsh-cmdline__prompt-output">>&nbsp</span>`
+  }
+
+  // return last argument's complete
+  protected getAutoComplete(cmd: string): string {
+    let args: string[] = this.parseCmd(cmd)
+
+    // empty string auto-complete
+    if (args.at(-1)! == '') {
+      return ''
     }
-
-    this.setPrompt()
-  }
-
-  setPrompt() {
-    let wdp = this.fs.getWorkingDirectoryPath().slice()
-    let wdpNumber = this.config.dirLength > wdp.length ? 0 : wdp.length - this.config.dirLength
-
-    this.cli.cmdline.setPrompt(
-      `${this.config.user} ` +
-      `<span style="color:#2d9bf2">
-        ${this.fs.parsePathToString(<Path>wdp.slice(wdpNumber))}
-      </span>` +
-      `<span style="color:#ff6ac1">
-         >&nbsp
-      </span>`
-    )
-  }
-
-  setImage(image: File) {
-    this.fs.setImage(image)
-  }
-
-  getImage() {
-    return this.fs.image
-  }
-
-  getAutoComplete(): string {
-    let args: string[] = this.parseCmd(this.cli.cmdline.getCommad())
-
-    if (args.length == 1) {
-      if (args[0].length == 0) {
-        return ''
-      }
+    // cmd auto-complete
+    else if (args.length == 1) {
       for (let cmd in this.cmdset) {
-        if (cmd.length > args[0].length &&
-          cmd.slice(0, args[0].length) == args[0])
+        if (cmd.length > args[0].length
+          && cmd.slice(0, args[0].length) == args[0])
         {
           let completeText = cmd.slice(args[0].length)
           return completeText
         }
       }
     }
+    // path auto-complete
     else if (args.length > 1) {
-      if (args.at(-1)!.length == 0) {
-        return ''
-      }
-      return this.fs.completePath(args.at(-1)!)
+      let completeText = this.fs.completePath(args.at(-1)!)
+      return completeText
     }
 
     return ''
   }
 
-  parseCmd(cmd: string): string[] {
-    let args: string[] = cmd.trimStart().split(/\s+/)
-    return args
+  // log error
+  protected logError(errorLog: string) {
+    this.errorLogSet.push(errorLog)
   }
 
-  exec(args: string[]) {
-    if (args.length == 0) {
-      return true
-    }
-    if (args.length == 1 && args[0] == '') {
-      return true
-    }
-    else if (this.cmdset[args[0]]) {
-      if (this.cmdset[args[0]].exec(args) == false) {
-        this.setErrorMsg(this.errorMsgSet['InvalidOption'](args[0]))
-        return false
-      }
-      return true
-    }
-
-    this.setErrorMsg(this.errorMsgSet['CommandNotFound'](args[0]))
-    return false
-  }
-
-  setErrorMsg(errorText: string) {
-    this.cli.history.appendPassage(errorText)
-  }
-
-  registerHotkey(name: string, fn: (event: KeyboardEvent) => void, ctrl=false, alt=false) {
+  protected registerHotkey(name: string, fn: (event: KeyboardEvent) => void, ctrl=false, alt=false) {
     if (ctrl)
       this.hotkeySet['ctrl+'][name] = fn
     else if (alt)
@@ -252,5 +169,28 @@ export class Shell {
     else {
       this.hotkeySet['+'][name] = fn
     }
+  }
+
+  private parseCmd(cmd: string): string[] {
+    let args: string[] = cmd.trimStart().split(/\s+/)
+    return args
+  }
+
+  private exec(cmd: string): boolean {
+    let args: string[] = this.parseCmd(cmd)
+
+    if (args[0] == '') {
+      return true
+    }
+    else if (this.cmdset[args[0]]) {
+      if (this.cmdset[args[0]].exec(args) == false) {
+        this.logError(this.errorMsgSet['InvalidArguments'](args))
+        return false
+      }
+      return true
+    }
+
+    this.logError(this.errorMsgSet['CommandNotFound'](args[0]))
+    return false
   }
 }
