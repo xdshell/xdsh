@@ -64,6 +64,10 @@ export class FileSystem {
     ]
   }
 
+  getImage(): File {
+    return this.image
+  }
+
   setImage(image: File) {
     this.image = image
     this.path = [<Directory>this.image]

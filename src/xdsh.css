@@ -8,13 +8,13 @@
   font-family: Cutive Mono, monospace, sans-serif;
 }
 
-.xdsh-split__row {
+.xdsh-layout__row {
   display: flex;
   flex-direction: row;
   flex: 1 0 auto;
 }
 
-.xdsh-split__column {
+.xdsh-layout__column {
   display: flex;
   flex-direction: column;
   flex: 1 0 auto;
@@ -26,6 +26,18 @@
   color: red;
   margin-left: 0;
   margin-right: 0;
+}
+
+/* .xdsh-cmdline__prompt-user {
+  
+} */
+
+.xdsh-cmdline__prompt-wdpath {
+  color: #2d9bf2;
+}
+
+.xdsh-cmdline__prompt-output {
+  color: #ff6ac1;
 }
 
 .xdsh-cli {

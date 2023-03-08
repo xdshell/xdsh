@@ -1,8 +1,7 @@
-import { Terminal } from './terminal/terminal'
+import { Terminal } from './components/terminal'
 import image from './image.json'
 
-let xdshTerminal = new Terminal(
-  <HTMLDivElement>document.getElementsByClassName('xdsh-terminal')[0],
-  image
-)
-xdshTerminal.appendCli()
+let content = <HTMLDivElement>document.getElementsByClassName('content')[0]
+let terminal = Terminal.newTerminal(image)
+
+content.appendChild(terminal)

@@ -14,7 +14,7 @@
         {
           "name": "config",
           "type": 1,
-          "body": "{\"user\": \"insorker\",\"version\":\"v1.0.0\",\"hostname\":\"xdsh\",\"dirLength\":2}"
+          "body": "{\"user\": \"insorker\",\"version\":\"v1.0.0\",\"hostname\":\"xdsh\",\"wdpathLength\":2}"
         }
       ]
     },

@@ -1,33 +1,90 @@
 import { Shell } from "./shell"
-import { Terminal } from "../terminal/terminal"
-import { TerminalCli } from "../terminal/terminalcli"
-import { File, FileType, DirBody } from "./filesystem"
+import { Terminal } from "../components/terminal"
+import { Text, File, FileType, DirBody } from "./filesystem"
+import { CommandLineInterface } from "../components/cli"
+import { HLayout, VLayout } from "../components/layout"
+import { Divider } from "../components/divider"
 
 export class Xdsh extends Shell {
-  constructor(cli: TerminalCli) {
+  constructor(cli: CommandLineInterface, image?: File) {
     super(cli)
+
+    this.init(image)
   }
 
   init(image?: File) {
-    super.init(image)
-
+    if (image) {
+      this.setImage(image)
+    }
+    this.initConfig()
+    this.initHotkey()
     this.initCommand()
+
+    super.init()
   }
 
-  initCommand() {
+  private initConfig() {
+    try {
+      this.configSet = JSON.parse(
+        (<Text>this.fs.parsePath('/usr/config')!.at(-1)!).body
+      )
+    }
+    catch(e) {
+      this.logError('xdsh: /usr/config: ' + e)
+    }
+  }
+
+  private initHotkey() {
+    this.registerHotkey('Enter', (event)=>{
+      event.preventDefault()
+
+      // TODO: can edit
+      this.cli.history.append(this.cli.cmdline.getLine())
+      this.exec(this.cli.cmdline.getCommad())
+
+      this.cli.cmdline.clear()
+      this.cli.cmdline.setTime()
+    });
+
+    this.registerHotkey('Tab', (event)=>{
+      event.preventDefault()
+
+      if (this.cli.cmdline.autoComplete.innerHTML) {
+        this.cli.cmdline.setCommand(
+          this.cli.cmdline.getCommad() +
+          this.getAutoComplete(this.cli.cmdline.getCommad())
+        )
+        this.cli.cmdline.autoComplete.innerHTML = ''
+        this.cli.cmdline.focus()
+      }
+    })
+
+    this.registerHotkey('l', (event)=>{
+      event.preventDefault()
+
+      this.cli.history.clear()
+      this.cli.cmdline.clear()
+    }, true)
+
+    this.registerHotkey('u', (event)=>{
+      event.preventDefault()
+
+      this.cli.cmdline.clear()
+    }, true)
+  }
+
+  private initCommand() {
     this.cmdset['help'] = {
       name: 'help',
       manual: 'Help you get familiar with xdsh command.',
       exec: (args: string[]): boolean => {
         if (args.length == 1) {
-          if (this.cmdset[args[0]]) {
-            this.cli.history.appendPassage(this.cmdset[args[0]].manual)
-            return true
-          }
+          this.cli.history.append(this.cmdset[args[0]].manual)
+          return true
         }
 
         if (this.cmdset[args[1]]) {
-          this.cli.history.appendPassage(this.cmdset[args[1]].manual)
+          this.cli.history.append(this.cmdset[args[1]].manual)
           return true
         }
 
@@ -39,7 +96,7 @@ export class Xdsh extends Shell {
       manual: 'List all of the commands.',
       exec: (args: string[]): boolean => {
         for (let key in this.cmdset) {
-          this.cli.history.appendSentence(key)
+          this.cli.history.append(key)
         }
         return true
       }
@@ -96,7 +153,7 @@ export class Xdsh extends Shell {
           lsDiv.innerHTML = <string>files.name
         }
 
-        this.cli.history.appendElement(lsDiv)
+        this.cli.history.append(lsDiv)
         return true
       }
     }
@@ -106,12 +163,10 @@ export class Xdsh extends Shell {
       exec: (args: string[]): boolean => {
         if (args.length == 1) {
           this.fs.cdRoot(this.fs.path)
-          this.setPrompt()
           return true
         }
 
         if (this.fs.setWorkingDirectory(args[1])) {
-          this.setPrompt()
           return true
         }
 
@@ -130,7 +185,7 @@ export class Xdsh extends Shell {
       name: 'pwd',
       manual: 'Print working directory.',
       exec: (args: string[]): boolean => {
-        this.cli.history.appendSentence(
+        this.cli.history.append(
           this.fs.parsePathToString(
             this.fs.getWorkingDirectoryPath()
           )
@@ -150,7 +205,7 @@ export class Xdsh extends Shell {
         if (virtualPath) {
           let file = virtualPath.at(-1)!
           if (file.type != FileType.dir) {
-            this.cli.history.appendPassage(<string>file.body)
+            this.cli.history.append(<string>file.body)
             return true
           }
         }
@@ -254,10 +309,10 @@ export class Xdsh extends Shell {
                 if (reader.result) {
                   let img = JSON.parse(reader.result.toString())
                   this.fs.setImage(img)
-                  this.cli.history.appendSentence('Load successfully')
+                  this.cli.history.append('Load successfully')
                 }
               } catch(err){
-                this.cli.history.appendSentence('Load failed')
+                this.cli.history.append('Load failed')
                 console.error(err)
               }
             }
@@ -287,22 +342,46 @@ export class Xdsh extends Shell {
       name: 'split',
       manual: 'Split window. Usage: split [a | d | w | s]. If you have ever played 4399, you know how to do it.\nAlso if you are a vimer... There\'s no need to say.',
       exec: (args: string[]): boolean => {
-        if (args.length == 1) {
-          return false
-        }
-        console.log(args[1])
+        let divider = Divider.newElement()
+        let cli = CommandLineInterface.newElement()
+        let parentNode = this.cli.self.parentNode!
+        new Xdsh(new CommandLineInterface(cli), this.getImage())
 
+        // split new window to the left
         if (args[1] == 'a' || args[1] == 'h') {
-          Terminal.newSplitRowLeft(this)
+          let hlayout = HLayout.newElement()
+          parentNode.replaceChild(hlayout, this.cli.self)
+
+          hlayout.appendChild(cli)
+          hlayout.appendChild(divider)
+          hlayout.appendChild(this.cli.self)
         }
+        // split new window to the right
         else if (args[1] == 'd' || args[1] == 'l') {
-          Terminal.newSplitRowRight(this)
+          let hlayout = HLayout.newElement()
+          parentNode.replaceChild(hlayout, this.cli.self)
+
+          hlayout.appendChild(this.cli.self)
+          hlayout.appendChild(divider)
+          hlayout.appendChild(cli)
         }
+        // split new window to the top
         else if (args[1] == 'w' || args[1] == 'k') {
-          Terminal.newSplitColumnUp(this)
+          let vlayout = VLayout.newElement()
+          parentNode.replaceChild(vlayout, this.cli.self)
+
+          vlayout.appendChild(cli)
+          vlayout.appendChild(divider)
+          vlayout.appendChild(this.cli.self)
         }
+        // split new window to the bottom
         else if (args[1] == 's' || args[1] == 'j') {
-          Terminal.newSplitColumnDown(this)
+          let vlayout = VLayout.newElement()
+          parentNode.replaceChild(vlayout, this.cli.self)
+
+          vlayout.appendChild(this.cli.self)
+          vlayout.appendChild(divider)
+          vlayout.appendChild(cli)
         }
         
         return true
@@ -324,7 +403,5 @@ export class Xdsh extends Shell {
         return true
       }
     }
-
-    // command end
   }
 }

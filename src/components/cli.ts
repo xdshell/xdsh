@@ -1,59 +1,62 @@
-export class TerminalCli {
-  cli: HTMLDivElement
-  history: TerminalHistory
-  cmdline: TerminalCommandLine
+export class CommandLineInterface {
+  self: HTMLDivElement
+  history: History
+  cmdline: CommandLine
+  static counter: number
 
   constructor(cli: HTMLDivElement) {
-    this.cli = cli
-    this.history = new TerminalHistory(
-      <HTMLDivElement>this.cli.getElementsByClassName('xdsh-history')[0]
+    this.self = cli
+    this.history = new History(
+      <HTMLDivElement>cli.getElementsByClassName('xdsh-history')[0]
     )
-    this.cmdline = new TerminalCommandLine(
-      <HTMLDivElement>this.cli.getElementsByClassName('xdsh-cmdline')[0]
+    this.cmdline = new CommandLine(
+      <HTMLDivElement>cli.getElementsByClassName('xdsh-cmdline')[0]
     )
+  }
+
+  static newElement(): HTMLDivElement {
+    let ele = document.createElement('div')
+    ele.className = 'xdsh-cli'
+    ele.setAttribute('ID-cli', (CommandLineInterface.counter++).toString())
+    ele.appendChild(History.newElement())
+    ele.appendChild(CommandLine.newElement())
+
+    return ele
   }
 }
 
-class TerminalHistory {
-  history: HTMLDivElement
+class History {
+  self: HTMLDivElement
 
   constructor(history: HTMLDivElement) {
-    this.history = history
+    this.self = history
   }
 
-  appendElement(record: Element) {
-    this.history.append(record)
-  }
-
-  appendSentence(text: string) {
-    let sentence = document.createElement('span')!
-    sentence.innerHTML = text
-
-    this.history.append(sentence)
-    this.history.append(document.createElement('br'))
-  }
-
-  appendPassage(text: string) {
-    let lines = text.split('\n')
-    for (let line of lines) {
-      this.appendSentence(line)
-    }
+  append(record: string | Element) {
+    this.self.append(record)
   }
 
   clear() {
-    this.history.innerHTML = ''
+    this.self.innerHTML = ''
+  }
+
+  static newElement(): HTMLDivElement {
+    let ele = document.createElement('div')
+    ele.className = "xdsh-history"
+
+    return ele
   }
 }
 
-class TerminalCommandLine {
-  cmdline: HTMLDivElement
+class CommandLine {
+  self: HTMLDivElement
   prompt: HTMLSpanElement
   command: HTMLSpanElement
   autoComplete: HTMLSpanElement
   time: HTMLSpanElement
 
   constructor(cmdline: HTMLDivElement) {
-    this.cmdline = cmdline
+    this.self = cmdline
     this.prompt = <HTMLSpanElement>cmdline.getElementsByClassName('xdsh-cmdline__prompt')[0]
     this.command = <HTMLSpanElement>cmdline.getElementsByClassName('xdsh-cmdline__command')[0]
     this.autoComplete = <HTMLSpanElement>cmdline.getElementsByClassName('xdsh-cmdline__auto-complete')[0]
@@ -81,7 +84,7 @@ class TerminalCommandLine {
   }
 
   getLine(): HTMLDivElement {
-    return this.cmdline.cloneNode(true) as HTMLDivElement
+    return this.self.cloneNode(true) as HTMLDivElement
   }
 
   getPrompt(): string {
@@ -110,5 +113,17 @@ class TerminalCommandLine {
   clear() {
     this.command.innerHTML = ''
     this.autoComplete.innerHTML = ''
+  }
+
+  static newElement(): HTMLDivElement {
+    let ele = document.createElement('div')
+    ele.className = "xdsh-cmdline"
+    ele.innerHTML = `
+      <span class="xdsh-cmdline__prompt"></span>
+      <span class="xdsh-cmdline__command" contenteditable tabindex="1"></span>
+      <span class="xdsh-cmdline__auto-complete"></span>
+      <span class="xdsh-cmdline__time"></span>`
+
+    return ele
   }
 }

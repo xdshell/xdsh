@@ -1,5 +1,5 @@
 import { File, Path, FileSystem } from './filesystem'
-import { TerminalCli } from '../terminal/terminalcli'
+import { CommandLineInterface } from '../components/cli'
 
 interface Command {
   name: string
@@ -38,7 +38,7 @@ interface ErrorMsgSet {
 }
 
 export class Shell {
-  cli: TerminalCli
+  cli: CommandLineInterface
   fs: FileSystem
   cmdset: CommandSet
   hotkeySet: HotkeySet
@@ -46,7 +46,7 @@ export class Shell {
   errorMsgSet: ErrorMsgSet
   errorLogSet: string[]
 
-  constructor(cli: TerminalCli) {
+  constructor(cli: CommandLineInterface) {
     this.cli = cli
     this.fs = new FileSystem()
     this.cmdset = {}
@@ -102,14 +102,23 @@ export class Shell {
       if (keyPressed) {
         if (this.errorLogSet.length) {
           for (let errorLog of this.errorLogSet) {
-            this.cli.history.appendPassage(errorLog)
+            this.cli.history.append(errorLog)
           }
+          this.errorLogSet.splice(0, this.errorLogSet.length)
         }
       }
     }, false)
 
     // prompt
     this.cli.cmdline.setPrompt(this.getPrompt())
+  }
+
+  getImage(): File {
+    return this.fs.getImage()
+  }
+
+  setImage(image: File) {
+    this.fs.setImage(image)
   }
 
   // return prompt html text
@@ -171,12 +180,7 @@ export class Shell {
     }
   }
 
-  private parseCmd(cmd: string): string[] {
-    let args: string[] = cmd.trimStart().split(/\s+/)
-    return args
-  }
-
-  private exec(cmd: string): boolean {
+  protected exec(cmd: string): boolean {
     let args: string[] = this.parseCmd(cmd)
 
     if (args[0] == '') {
@@ -192,5 +196,10 @@ export class Shell {
 
     this.logError(this.errorMsgSet['CommandNotFound'](args[0]))
     return false
+  }
+
+  private parseCmd(cmd: string): string[] {
+    let args: string[] = cmd.trimStart().split(/\s+/)
+    return args
   }
 }
