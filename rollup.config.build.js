@@ -3,11 +3,11 @@ import typescript from '@rollup/plugin-typescript'
 import commonjs from '@rollup/plugin-commonjs'
 import terser from '@rollup/plugin-terser'
 import copy from 'rollup-plugin-copy'
-import json from '@rollup/plugin-json'
+// import json from '@rollup/plugin-json'
 
 export default [
   {
-    input: 'src/xdsh.ts',
+    input: 'src/index.ts',
     output: [
       {
         dir: 'dist',
@@ -17,6 +17,7 @@ export default [
       {
         dir: 'dist',
         format: 'umd',
+        name: 'xdsh',
         entryFileNames: '[name].umd.js',
       },
       {
@@ -33,11 +34,9 @@ export default [
       copy({
         targets: [
           { src: 'src/style/xdsh.css', dest: 'dist' },
-          { src: 'src/style/xdsh.css', dest: 'demo/assets' },
-          { src: 'public/index.html', dest: 'demo' }
         ]
       }),
-      json()
+      // json()
     ],
   }
 ]
