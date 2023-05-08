@@ -1,4 +1,5 @@
-import { File, Path, FileSystem } from '../filesystem/filesystem'
+import { File, Dir } from '../file-system/file'
+import { FileSystem } from '../file-system/file-system'
 import { CommandLineInterface } from '../components/cli'
 
 interface Command {
@@ -46,9 +47,9 @@ export class Shell {
   errorMsgSet: ErrorMsgSet
   errorLogSet: string[]
 
-  constructor(cli: CommandLineInterface) {
+  constructor(cli: CommandLineInterface, img: Dir) {
     this.cli = cli
-    this.fs = new FileSystem()
+    this.fs = new FileSystem(img)
     this.cmdset = {}
     this.hotkeySet = {
       '+': {},
@@ -107,26 +108,32 @@ export class Shell {
           this.errorLogSet.splice(0, this.errorLogSet.length)
         }
       }
+
+      this.setPrompt()
     }, false)
 
     // prompt
+    this.setPrompt()
+  }
+
+  getImg(): Dir {
+    return this.fs.getImg()
+  }
+
+  setImg(img: Dir) {
+    this.fs.setImg(img)
+  }
+
+  protected setPrompt() {
     this.cli.cmdline.setPrompt(this.getPrompt())
-  }
-
-  getImage(): File {
-    return this.fs.getImage()
-  }
-
-  setImage(image: File) {
-    this.fs.setImage(image)
   }
 
   // return prompt html text
   protected getPrompt(): string {
-    let wdpath = this.fs.getWorkingDirectoryPath().slice()
+    let wdpath = this.fs.getPath()
     let wdpathLength = this.configSet.wdpathLength > wdpath.length ?
       0 : wdpath.length - this.configSet.wdpathLength
-    let wdpathPrompt = this.fs.parsePathToString(<Path>wdpath.slice(wdpathLength))
+    let wdpathPrompt = this.fs.parsePathToStr(wdpath.slice(wdpathLength))
     if (wdpathLength > 2) {
       wdpathPrompt = '../' + wdpathPrompt
     }

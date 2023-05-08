@@ -1,21 +1,24 @@
 import { Shell } from "./shell"
-import { Terminal } from "../components/terminal"
-import { Text, File, FileType, DirBody } from "../filesystem/filesystem"
+import { File, FileType, Dir, Txt, FPath, DPath } from "../file-system/file"
 import { CommandLineInterface } from "../components/cli"
-import { HLayout, VLayout } from "../components/layout"
 import { Divider } from "../components/divider"
+import { HLayout, VLayout } from "../components/layout"
 
 export class Xdsh extends Shell {
-  constructor(cli: CommandLineInterface, image?: File) {
-    super(cli)
+  constructor(cli: CommandLineInterface, img?: Dir) {
+    super(
+      cli,
+      img ? img : {
+        name: '/',
+        type: FileType.dir,
+        body: []
+      }
+    )
 
-    this.init(image)
+    this.init()
   }
 
-  init(image?: File) {
-    if (image) {
-      this.setImage(image)
-    }
+  init() {
     this.initConfig()
     this.initHotkey()
     this.initCommand()
@@ -26,7 +29,7 @@ export class Xdsh extends Shell {
   private initConfig() {
     try {
       this.configSet = JSON.parse(
-        (<Text>this.fs.parsePath('/usr/config')!.at(-1)!).body
+        (<Txt>this.fs.getWF(<FPath>this.fs.parseStrToPath('/usr/config'))).body
       )
     }
     catch(e) {
@@ -135,7 +138,7 @@ export class Xdsh extends Shell {
       name: 'ls',
       manual: 'List files in working directory.',
       exec: (args: string[]): boolean => {
-        let files: File = this.fs.getWorkingDirectory()
+        let files: File = this.fs.getWD()
         let getlsitem = (tagName: string, text: string, className: string): HTMLElement => {
           let item = document.createElement(tagName)
           item.innerText = text
@@ -147,7 +150,7 @@ export class Xdsh extends Shell {
         lsDiv.className = 'xdsh-cmd__ls'
 
         if (args.length > 1) {
-          let virtualPath = this.fs.parsePath(args[1])
+          let virtualPath = this.fs.parseStrToPath(args[1])
           if (virtualPath) {
             files = virtualPath.at(-1)!
           }
@@ -155,23 +158,20 @@ export class Xdsh extends Shell {
         }
 
         if (files.type == FileType.dir) {
-          for (let file of <DirBody>files.body) {
+          for (let file of (<Dir>files).body) {
             let item: HTMLElement
 
             switch (file.type) {
               case FileType.dir:
                 item = getlsitem('div', file.name, 'xdsh-cmd__ls-dir');
                 break
-              case FileType.text:
+              case FileType.txt:
                 item = getlsitem('div', file.name, 'xdsh-cmd__ls-text');
                 break
-              case FileType.link:
+              case FileType.url:
                 item = getlsitem('a', file.name, 'xdsh-cmd__ls-link');
                 item.setAttribute('href', <string>file.body)
                 item.setAttribute('target', '_blank')
-                break
-              case FileType.exe:
-                item = getlsitem('div', file.name, 'xdsh-cmd__ls-exe');
                 break
               default: return false
             }
@@ -192,11 +192,13 @@ export class Xdsh extends Shell {
       manual: 'Change directory.',
       exec: (args: string[]): boolean => {
         if (args.length == 1) {
-          this.fs.cdRoot(this.fs.path)
+          this.fs.cdRoot(this.fs.getPath())
           return true
         }
 
-        if (this.fs.setWorkingDirectory(args[1])) {
+        let virtualPath: FPath | DPath | undefined
+        if (virtualPath = this.fs.parseStrToPath(args[1])) {
+          this.fs.setPath(<DPath>virtualPath)
           return true
         }
 
@@ -216,9 +218,7 @@ export class Xdsh extends Shell {
       manual: 'Print working directory.',
       exec: (args: string[]): boolean => {
         this.cli.history.append(
-          this.fs.parsePathToString(
-            this.fs.getWorkingDirectoryPath()
-          )
+          this.fs.parsePathToStr(this.fs.getPath())
         )
         return true
       }
@@ -230,7 +230,7 @@ export class Xdsh extends Shell {
         if (args.length <= 1)
           return false
 
-        let virtualPath = this.fs.parsePath(args[1])
+        let virtualPath = this.fs.parseStrToPath(args[1])
         
         if (virtualPath) {
           let file = virtualPath.at(-1)!
@@ -251,7 +251,7 @@ export class Xdsh extends Shell {
           return false
         }
 
-        let files = this.fs.getWorkingDirectory().body
+        let files = this.fs.getWD().body
         for (let file of files) {
           if (file.type == FileType.dir &&
             file.name == args[1])
@@ -275,15 +275,12 @@ export class Xdsh extends Shell {
           return false
         }
 
-        let type: FileType = FileType.text
-        if (args[2] == 'text') {
-          type = FileType.text
+        let type: FileType = FileType.txt
+        if (args[2] == 'txt') {
+          type = FileType.txt
         }
-        else if (args[2] == 'link') {
-          type = FileType.link
-        }
-        else if (args[2] == 'exe') {
-          type = FileType.exe
+        else if (args[2] == 'url') {
+          type = FileType.url
         }
 
         return this.fs.append({
@@ -301,7 +298,7 @@ export class Xdsh extends Shell {
           return false
         }
 
-        let virtualPath = this.fs.parsePath(args[1])
+        let virtualPath = this.fs.parseStrToPath(args[1])
         if (virtualPath) {
           let file = virtualPath.at(-1)!
           if (file.type != FileType.dir) {
@@ -338,7 +335,7 @@ export class Xdsh extends Shell {
               try {
                 if (reader.result) {
                   let img = JSON.parse(reader.result.toString())
-                  this.fs.setImage(img)
+                  this.fs.setImg(img)
                   this.cli.history.append('Load successfully')
                 }
               } catch(err){
@@ -358,7 +355,7 @@ export class Xdsh extends Shell {
       manual: 'Export image file. See more docs in docs.',
       exec: (args: string[]): boolean => {
         // https://stackoverflow.com/questions/19721439/download-json-object-as-a-file-from-browser
-        let dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(this.fs.image))
+        let dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(this.fs.getImg()))
         let downloadAnchorNode = document.createElement('a')
         downloadAnchorNode.setAttribute("href", dataStr)
         downloadAnchorNode.setAttribute("download", "image.json")
@@ -375,7 +372,7 @@ export class Xdsh extends Shell {
         let divider = Divider.newElement()
         let cli = CommandLineInterface.newElement()
         let parentNode = this.cli.self.parentNode!
-        new Xdsh(new CommandLineInterface(cli), this.getImage())
+        new Xdsh(new CommandLineInterface(cli), this.getImg())
 
         // split new window to the left
         if (args[1] == 'a' || args[1] == 'h') {

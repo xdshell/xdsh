@@ -1,12 +1,12 @@
 import { CommandLineInterface } from "./cli"
 import { Xdsh } from "../shell/xdsh"
-import { File } from "../filesystem/filesystem"
+import { Dir } from "../file-system/file"
 
 export class Terminal {
-  static newTerminal(image?: File): HTMLDivElement {
+  static newTerminal(img?: Dir): HTMLDivElement {
     let terminal = Terminal.newElement()
     let cli = CommandLineInterface.newElement()
-    new Xdsh(new CommandLineInterface(cli), image)
+    new Xdsh(new CommandLineInterface(cli), img)
     terminal.appendChild(cli)
 
     return terminal

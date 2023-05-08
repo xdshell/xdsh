@@ -8,7 +8,7 @@ import htmlTemplate from 'rollup-plugin-generate-html-template'
 
 export default [
   {
-    input: 'src/demo.ts',
+    input: 'demo.ts',
     output: [
       {
         dir: 'demo/assets',

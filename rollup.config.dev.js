@@ -11,7 +11,7 @@ import htmlTemplate from 'rollup-plugin-generate-html-template'
 // solution to failure of rollup watch: https://github.com/rollup/rollup/issues/1828#issuecomment-675629244
 export default [
   {
-    input: 'src/demo.ts',
+    input: 'demo.ts',
     output: [
       {
         dir: 'demo/assets',
