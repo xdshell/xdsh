@@ -130,7 +130,7 @@ export class Xdsh extends Shell {
       manual: 'List all of the commands.',
       exec: (args: string[]): boolean => {
         for (let key in this.cmdset) {
-          this.cli.history.append(key)
+          this.cli.history.append(key + ' ')
         }
         return true
       }
@@ -199,8 +199,10 @@ export class Xdsh extends Shell {
 
         let virtualPath: FPath | DPath | undefined
         if (virtualPath = this.fs.parseStrToPath(args[1])) {
-          this.fs.setPath(<DPath>virtualPath)
-          return true
+          if (this.fs.isDir(virtualPath[virtualPath.length - 1])) {
+            this.fs.setPath(<DPath>virtualPath)
+            return true
+          }
         }
 
         return false
