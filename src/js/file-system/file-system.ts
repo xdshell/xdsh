@@ -31,11 +31,11 @@ export class FileSystem {
   }
 
   getWF(path: FPath): File {
-    return path.at(-1)!
+    return path[path.length - 1]!
   }
 
   getWD(path: DPath = this.path): Dir {
-    return path.at(-1)!
+    return path[path.length - 1]!
   }
 
   isDir(file: File) {
@@ -51,7 +51,7 @@ export class FileSystem {
   }
 
   find(name: string, path?: FPath | DPath): File | undefined {
-    let file: File = path ? path.at(-1)! : this.path.at(-1)!
+    let file: File = path ? path[path.length - 1]! : this.path[path!.length - 1]!
 
     if (this.isDir(file)) {
       for (let item of (<Dir>file).body) {
@@ -107,7 +107,7 @@ export class FileSystem {
       pathStrList = ['/']
     }
     // 'user/'
-    else if (pathStr.at(-1) == '/') {
+    else if (pathStr[pathStr.length - 1] == '/') {
       pathStrList = pathStr.split('/')
       pathStrList.pop()
       endWithDir = true
