@@ -1,6 +1,6 @@
 {
   "name": "xdsh",
-  "version": "0.5.7",
+  "version": "0.5.8",
   "description": "A shell simulator running on website",
   "scripts": {
     "dev": "rollup -w -c rollup.config.dev.js --bundleConfigAsCjs",
