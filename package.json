@@ -1,10 +1,7 @@
 {
   "name": "xdsh",
-  "version": "0.5.3",
+  "version": "0.5.4",
   "description": "A shell simulator running on website",
-  "main": "dist/index.cjs.js",
-  "module": "dist/index.esm.js",
-  "browser": "dist/index.umd.js",
   "scripts": {
     "dev": "rollup -w -c rollup.config.dev.js --bundleConfigAsCjs",
     "build": "rollup -c rollup.config.build.js --bundleConfigAsCjs",
@@ -14,10 +11,8 @@
     "type": "git",
     "url": "git+https://github.com/insorker/xdsh.git"
   },
-  "keywords": [
-    "shell"
-  ],
   "author": "insorker",
+  "keywords": ["shell"],
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/insorker/xdsh/issues"
@@ -42,7 +37,8 @@
       "path": "./node_modules/cz-conventional-changelog"
     }
   },
-  "files": [
-    "dist"
-  ]
+  "files": ["dist"],
+  "main": "dist/index.cjs.js",
+  "module": "dist/index.esm.js",
+  "browser": "dist/index.umd.js"
 }
