@@ -152,7 +152,7 @@ export class Xdsh extends Shell {
         if (args.length > 1) {
           let virtualPath = this.fs.parseStrToPath(args[1])
           if (virtualPath) {
-            files = virtualPath.at(-1)!
+            files = virtualPath[virtualPath.length - 1]!
           }
           else return false
         }
@@ -233,7 +233,7 @@ export class Xdsh extends Shell {
         let virtualPath = this.fs.parseStrToPath(args[1])
         
         if (virtualPath) {
-          let file = virtualPath.at(-1)!
+          let file = virtualPath[virtualPath.length - 1]!
           if (file.type != FileType.dir) {
             this.cli.history.append(<string>file.body)
             return true
@@ -300,7 +300,7 @@ export class Xdsh extends Shell {
 
         let virtualPath = this.fs.parseStrToPath(args[1])
         if (virtualPath) {
-          let file = virtualPath.at(-1)!
+          let file = virtualPath[virtualPath.length - 1]!
           if (file.type != FileType.dir) {
             file.body = args[2]
             return true

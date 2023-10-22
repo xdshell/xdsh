@@ -1,4 +1,5 @@
-import { File, FileType, Dir, DPath, FPath } from './file'
+import { FileType } from './file'
+import type { File, Dir, DPath, FPath } from './file'
 
 /**
  * WD: working directory
@@ -39,6 +40,7 @@ export class FileSystem {
   }
 
   isDir(file: File) {
+    // return file.type == FileType.dir
     return file.type == FileType.dir
   }
 

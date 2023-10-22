@@ -149,7 +149,7 @@ export class Shell {
     let args: string[] = this.parseCmd(cmd)
 
     // empty string auto-complete
-    if (args.at(-1)! == '') {
+    if (args[args.length - 1]! == '') {
       return ''
     }
     // cmd auto-complete
@@ -165,7 +165,7 @@ export class Shell {
     }
     // path auto-complete
     else if (args.length > 1) {
-      let completeText = this.fs.completePath(args.at(-1)!)
+      let completeText = this.fs.completePath(args[args.length - 1]!)
       return completeText
     }
 
