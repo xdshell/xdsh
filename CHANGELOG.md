@@ -1,3 +1,13 @@
+# 0.5.0 (2023-10-22)
+
+Features
+
+- vue-xdsh comes into the world.
+
+Fix
+
+- More compatible now
+
 # 0.4.0 (2023-03-08)
 
 Features
