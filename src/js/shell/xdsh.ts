@@ -1,5 +1,6 @@
 import { Shell } from "./shell"
-import { File, FileType, Dir, Txt, FPath, DPath } from "../file-system/file"
+import { FileType } from "../file-system/file"
+import type { File, Dir, Txt, FPath, DPath } from "../file-system/file"
 import { CommandLineInterface } from "../components/cli"
 import { Divider } from "../components/divider"
 import { HLayout, VLayout } from "../components/layout"

@@ -1,4 +1,4 @@
-import { File, Dir } from '../file-system/file'
+import type { File, Dir } from '../file-system/file'
 import { FileSystem } from '../file-system/file-system'
 import { CommandLineInterface } from '../components/cli'
 
