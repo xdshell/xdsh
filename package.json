@@ -1,6 +1,6 @@
 {
   "name": "xdsh",
-  "version": "0.5.4",
+  "version": "0.5.5",
   "description": "A shell simulator running on website",
   "scripts": {
     "dev": "rollup -w -c rollup.config.dev.js --bundleConfigAsCjs",
@@ -40,5 +40,15 @@
   "files": ["dist"],
   "main": "dist/index.cjs.js",
   "module": "dist/index.esm.js",
-  "browser": "dist/index.umd.js"
+  "browser": "dist/index.umd.js",
+  "exports": {
+    ".": {
+      "import": "./dist/index.esm.js",
+      "require": "./dist/index.umd.js"
+    },
+    "./dist/xdsh.css": {
+      "import": "./dist/xdsh.css",
+      "require": "./dist/style.css"
+    }
+  }
 }

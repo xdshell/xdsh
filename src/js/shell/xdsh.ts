@@ -34,7 +34,7 @@ export class Xdsh extends Shell {
       )
     }
     catch(e) {
-      this.logError('xdsh: /usr/config: ' + e)
+      this.logError('xdsh: /usr/config not found. Using default configuration.')
     }
   }
 
