@@ -1,8 +1,8 @@
-import type { File, Dir } from '../file-system/file'
+import type { Dir } from '../file-system/file'
 import { FileSystem } from '../file-system/file-system'
 import { CommandLineInterface } from '../components/cli'
 
-interface Command {
+export interface Command {
   name: string
   manual: string
   exec(args: string[]): boolean
@@ -124,6 +124,20 @@ export class Shell {
     this.fs.setImg(img)
   }
 
+  registerCmd(cmd: Command) {
+    this.cmdset[cmd.name] = cmd
+  }
+
+  registerHotkey(name: string, fn: (event: KeyboardEvent) => void, ctrl=false, alt=false) {
+    if (ctrl)
+      this.hotkeySet['ctrl+'][name] = fn
+    else if (alt)
+      this.hotkeySet['alt+'][name] = fn
+    else {
+      this.hotkeySet['+'][name] = fn
+    }
+  }
+
   protected setPrompt() {
     this.cli.cmdline.setPrompt(this.getPrompt())
   }
@@ -175,16 +189,6 @@ export class Shell {
   // log error
   protected logError(errorLog: string) {
     this.errorLogSet.push(errorLog)
-  }
-
-  protected registerHotkey(name: string, fn: (event: KeyboardEvent) => void, ctrl=false, alt=false) {
-    if (ctrl)
-      this.hotkeySet['ctrl+'][name] = fn
-    else if (alt)
-      this.hotkeySet['alt+'][name] = fn
-    else {
-      this.hotkeySet['+'][name] = fn
-    }
   }
 
   protected exec(cmd: string): boolean {
